@@ -1,0 +1,3274 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="./manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#166534">
+  <title>Compost LIMS — ระบบจัดการข้อมูลห้องปฏิบัติการและการทดลองปุ๋ยหมักอินทรีย์ (18-Day Cycle)</title>
+  <style>
+    :root {
+      --bg: #f4f6f4;
+      --surface: #ffffff;
+      --surface-subtle: #f8faf8;
+      --border: #dce3dc;
+      --ink: #162018;
+      --muted: #526356;
+      --brand: #166534;
+      --brand-hover: #14532d;
+      --brand-soft: #dcfce7;
+      --brand-ink: #ffffff;
+      --accent: #0284c7;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --warn-border: #f59e0b;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --danger-border: #ef4444;
+      --ok: #15803d;
+      --ok-bg: #dcfce7;
+      --ok-border: #22c55e;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(16, 24, 20, 0.08), 0 1px 2px rgba(16, 24, 20, 0.05);
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --font: "Sarabun", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Top Header */
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--brand);
+      color: var(--brand-ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+    }
+
+    .status-pill.offline .status-dot {
+      background: var(--warn);
+    }
+
+    .role-select {
+      font: inherit;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* Navigation Tabs */
+    .nav-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-4);
+      display: flex;
+      gap: var(--space-1);
+    }
+
+    .nav-tab {
+      font: inherit;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--ink);
+      background: var(--surface-subtle);
+    }
+
+    .nav-tab.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+    }
+
+    .nav-tab:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* Main Content Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .module-panel {
+      display: none;
+    }
+
+    .module-panel.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Grids & Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--space-4);
+    }
+
+    @media (min-width: 960px) {
+      .grid-2 {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+      .grid-2-equal {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-6);
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0 0 var(--space-3) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+    }
+
+    /* Buttons & Inputs */
+    .btn {
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.15s, border-color 0.15s, transform 0.05s;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: var(--brand-ink);
+    }
+
+    .btn-primary:hover {
+      background: var(--brand-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-subtle);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .btn-touch {
+      min-height: 48px;
+      font-size: 15px;
+      padding: 12px 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .form-control {
+      font: inherit;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      width: 100%;
+    }
+
+    .form-control-touch {
+      min-height: 48px;
+      font-size: 16px;
+    }
+
+    .form-control:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Touch-friendly Selector Buttons (NFR 4.2) */
+    .touch-choice-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--space-2);
+    }
+
+    .touch-choice {
+      font: inherit;
+      padding: 14px 12px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .touch-choice:hover {
+      background: var(--surface-subtle);
+    }
+
+    .touch-choice.selected {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-hover);
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: var(--surface);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-subtle);
+      font-weight: 700;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f9fbf9;
+    }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Badges & Alerts */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-green {
+      background: var(--ok-bg);
+      color: var(--ok);
+      border: 1px solid var(--ok-border);
+    }
+
+    .badge-brown {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .badge-activator {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #38bdf8;
+    }
+
+    .badge-manure {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border: 1px solid #c084fc;
+    }
+
+    .badge-warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+      border: 1px solid var(--warn-border);
+    }
+
+    .badge-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    .alert-box {
+      padding: var(--space-4);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: var(--space-4);
+      font-size: 14px;
+    }
+
+    .alert-ok {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+      color: #14532d;
+    }
+
+    .alert-warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: #78350f;
+    }
+
+    .alert-danger {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: #7f1d1d;
+    }
+
+    /* Metric Display */
+    .metric-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-4);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* 18-Day Calendar Grid */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: var(--space-2);
+    }
+
+    .day-cell {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .day-cell:hover {
+      border-color: var(--brand);
+    }
+
+    .day-cell.active-day {
+      border: 2px solid var(--brand);
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .day-cell.logged {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .day-num {
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-task {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-8) var(--space-4);
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-subtle);
+    }
+
+    .empty-state p {
+      margin: 6px 0 0 0;
+      font-size: 14px;
+    }
+
+    /* Chart Container */
+    .chart-box {
+      width: 100%;
+      height: 320px;
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      padding: var(--space-3);
+    }
+
+    /* QR Box */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      text-align: center;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 18, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: var(--radius);
+      max-width: 720px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: var(--space-6);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    @media print {
+      .app-header, .nav-bar, .no-print {
+        display: none !important;
+      }
+      body {
+        background: #fff;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
+
+    /* Photo Capture & Preview Styles */
+    .photo-upload-box {
+      border: 1px dashed var(--border);
+      background: var(--surface-subtle);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .photo-thumb {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #e5ebe5;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .photo-thumb-sm {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
+    /* IoT MQTT Connector Styles */
+    .iot-bar {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: var(--space-4);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      font-size: 13px;
+    }
+
+    .btn-iot {
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #38bdf8;
+      background: #e0f2fe;
+      color: #0369a1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: background-color 0.15s;
+    }
+
+    .btn-iot:hover {
+      background: #bae6fd;
+    }
+
+    .iot-value-tag {
+      font-family: monospace;
+      font-size: 12px;
+      background: #ffffff;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .optional-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    /* Enhanced Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .header-inner {
+        padding: var(--space-2) var(--space-3);
+      }
+      .brand-title {
+        font-size: 16px;
+      }
+      .brand-subtitle {
+        font-size: 11px;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .container {
+        padding: var(--space-4) var(--space-3);
+      }
+      .card {
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+      }
+      .section-title {
+        font-size: 18px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+      }
+      .form-control {
+        font-size: 16px;
+        min-height: 44px;
+      }
+      .touch-choice-group {
+        grid-template-columns: 1fr;
+      }
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .metric-value {
+        font-size: 22px;
+      }
+      .nav-tab {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+      th, td {
+        padding: 8px 8px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-mobile-full {
+        width: 100%;
+      }
+      .iot-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">C:N</div>
+        <div>
+          <h1 class="brand-title">Compost LIMS</h1>
+          <p class="brand-subtitle">Organic Compost Experimentation &amp; 18-Day Testing System (Online / Offline PWA)</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div id="networkStatusPill" class="status-pill" title="ทำงานได้ทั้ง Online และ Offline ด้วยฐานข้อมูลในเครื่อง (IndexedDB + LocalStorage)">
+          <span class="status-dot"></span>
+          <span id="networkStatusText">Online (Local DB Ready)</span>
+        </div>
+
+        <button type="button" class="btn-iot" id="btnOpenMqttModal" title="ตั้งค่าการเชื่อมต่ออุปกรณ์วัดค่า IoT ผ่านโปรโตคอล MQTT">
+          <span id="mqttStatusDot" style="width:8px; height:8px; border-radius:50%; background:#0284c7; display:inline-block;"></span>
+          <span id="mqttHeaderText">IoT MQTT: Ready (คู่ขนานกรอกมือ)</span>
+        </button>
+
+        <label for="roleSelector" class="form-label" style="margin:0; font-size:12px;">ผู้ใช้งาน:</label>
+        <select id="roleSelector" class="role-select" aria-label="บทบาทผู้ใช้งาน">
+          <option value="Lab Researcher">Lab Researcher (นักวิจัย)</option>
+          <option value="Field Operator">Field Operator (เจ้าหน้าที่หน้างาน)</option>
+          <option value="System Admin / Manager">System Admin / Manager (ผู้ดูแลระบบ)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Module Navigation Bar -->
+  <nav class="nav-bar" aria-label="เมนูหลักของระบบ">
+    <div class="nav-inner">
+      <button type="button" class="nav-tab active" data-tab="mod-materials">1. วัตถุดิบ &amp; ค่า C:N (Master Data)</button>
+      <button type="button" class="nav-tab" data-tab="mod-formulation">2. คำนวณสูตร &amp; สร้างกองปุ๋ย (Formulation)</button>
+      <button type="button" class="nav-tab" data-tab="mod-monitoring">3. บันทึกหน้างาน 18 วัน (In-Process)</button>
+      <button type="button" class="nav-tab" data-tab="mod-bioassay">4. ผลตรวจปุ๋ย &amp; ปลูกพืช (Quality &amp; Bioassay)</button>
+      <button type="button" class="nav-tab" data-tab="mod-analytics">5. วิเคราะห์ผล &amp; รายงาน (Analytics)</button>
+      <button type="button" class="nav-tab" data-tab="mod-system">6. สำรองข้อมูล &amp; Audit Log (Offline/System)</button>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="container">
+
+    <!-- ==================== MODULE 1: RAW MATERIAL MASTER DATA ==================== -->
+    <section id="mod-materials" class="module-panel active" aria-labelledby="title-mod-1">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-1" class="section-title">Module 1: Raw Material &amp; C:N Master Data (จัดการวัตถุดิบและค่า C:N)</h2>
+          <p class="section-desc">ฐานข้อมูลวัตถุดิบอินทรีย์มาตรฐาน (MAT-001 ถึง MAT-016) พร้อมค่า C:N Ratio ประเภทวัสดุ และค่าความชื้นเฉลี่ย (FR-MAT-01, FR-MAT-02)</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnResetMaterials">รีเซ็ตวัตถุดิบมาตรฐาน 16 รายการ</button>
+      </div>
+
+      <div class="grid-2">
+        <!-- Material Table -->
+        <div class="card">
+          <div class="card-title">
+            <span>ตารางข้อมูลวัตถุดิบมาตรฐาน (Master Data Table)</span>
+            <span class="badge badge-green" id="materialCountBadge">16 รายการ</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Material ID</th>
+                  <th>รูปภาพ</th>
+                  <th>ชื่อวัตถุดิบ (TH/EN)</th>
+                  <th>ประเภท (Category)</th>
+                  <th class="num">C:N Ratio</th>
+                  <th class="num">ความชื้น (%)</th>
+                  <th>การจัดการเบื้องต้น</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="materialTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Add / Edit Material Form -->
+        <div class="card">
+          <div class="card-title">
+            <span id="materialFormHeading">เพิ่ม / แก้ไขข้อมูลวัตถุดิบ (FR-MAT-01)</span>
+          </div>
+          <form id="materialForm">
+            <input type="hidden" id="matEditMode" value="add">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="matId">รหัสวัตถุดิบ (Material ID) *</label>
+                <input type="text" id="matId" class="form-control" placeholder="เช่น MAT-018" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="matCategory">ประเภทวัสดุ (Category) *</label>
+                <select id="matCategory" class="form-control" required>
+                  <option value="Green Waste">Green Waste (วัสดุสีเขียว/ไนโตรเจน)</option>
+                  <option value="Brown Carbon">Brown Carbon (วัสดุสีน้ำตาล/คาร์บอน)</option>
+                  <option value="Manure">Manure (มูลสัตว์)</option>
+                  <option value="Activator">Activator (ตัวเร่งจุลินทรีย์)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="matName">ชื่อวัตถุดิบ (Material Name TH/EN) *</label>
+              <input type="text" id="matName" class="form-control" placeholder="เช่น มูลวัวนม (Dairy Cow Manure)" required>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="matCN">ค่า C:N Ratio (C ต่อ N=1) <span class="optional-tag">ไม่บังคับ / Optional</span></label>
+                <input type="number" id="matCN" class="form-control" min="1" max="600" step="0.1" placeholder="เว้นว่างได้หากไม่ทราบค่าทางเคมี">
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
+                  <label class="form-label" for="matMoisture">ความชื้น (%) <span class="optional-tag">ไม่บังคับ</span></label>
+                  <button type="button" class="btn-iot" id="btnIotMatMoisture" title="อ่านค่าความชื้นจากเซนเซอร์ IoT ผ่าน MQTT (Topic: compost/iot/moisture)">📡 ดึงค่าความชื้น MQTT</button>
+                </div>
+                <input type="number" id="matMoisture" class="form-control" min="0" max="100" step="0.1" placeholder="กรอกมือ หรือดึงจาก IoT">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="matPretreat">การเตรียมวัตถุดิบ (Pre-treatment Required)</label>
+              <input type="text" id="matPretreat" class="form-control" placeholder="เช่น ต้องสับย่อย / Liquid / -">
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="matPhotoInput">📷 ถ่ายรูป / แนบรูปภาพวัตถุดิบ (รองรับกล้องมือถือและไฟล์ภาพ)</label>
+              <div class="photo-upload-box">
+                <img id="matPhotoPreview" class="photo-thumb" alt="ตัวอย่างรูปวัตถุดิบ" style="display:none;">
+                <div style="flex:1; min-width:180px;">
+                  <input type="file" id="matPhotoInput" class="form-control" accept="image/*" capture="environment">
+                  <div style="font-size:11px; color:var(--muted); margin-top:4px;">ถ่ายภาพลักษณะวัตถุดิบจริงเพื่อใช้ตรวจสอบย้อนหลัง</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnClearMatPhoto" style="display:none;">ลบรูป</button>
+              </div>
+            </div>
+
+            <div style="display:flex; gap: var(--space-2); flex-wrap:wrap;">
+              <button type="submit" class="btn btn-primary btn-mobile-full" id="btnSaveMaterial">บันทึกข้อมูลวัตถุดิบ</button>
+              <button type="button" class="btn btn-secondary btn-mobile-full" id="btnCancelMaterialEdit" style="display:none;">ยกเลิกแก้ไข</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 2: FORMULATION & EXPERIMENT SETUP ==================== -->
+    <section id="mod-formulation" class="module-panel" aria-labelledby="title-mod-2">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-2" class="section-title">Module 2: Formulation &amp; Experiment Setup (วางแผนและคำนวณสูตรปุ๋ย)</h2>
+          <p class="section-desc">คำนวณ Blended C:N Ratio อัตโนมัติ แจ้งเตือนช่วงเป้าหมาย 25:1 – 30:1 บันทึกมิติเริ่มต้น และสร้างรหัส Batch ID พร้อม QR Code (FR-FORM-01 ถึง FR-FORM-04)</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Left: Formulation Builder -->
+        <div class="card">
+          <div class="card-title">
+            <span>สร้างสูตรกองปุ๋ยหมักใหม่ (Create Compost Batch)</span>
+          </div>
+
+          <form id="batchForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="batchIdInput">รหัสกองปุ๋ย (Unique Batch ID - FR-FORM-04) *</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="batchIdInput" class="form-control" required>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnGenBatchId">สุ่มรหัสใหม่</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="batchStartDate">วันที่เริ่มตั้งกอง (Day 1 Date) *</label>
+                <input type="date" id="batchStartDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="batchHypothesis">ชื่อการทดลอง / สมมติฐานการทดลอง (Experiment Hypothesis) *</label>
+              <input type="text" id="batchHypothesis" class="form-control" placeholder="เช่น ทดสอบการใช้เวย์กรีกโยเกิร์ตเร่งอุณหภูมิแตะ 60°C ภายในวันที่ 6" required>
+            </div>
+
+            <!-- Pile Initial Dimensions (FR-FORM-03) -->
+            <div style="background: var(--surface-subtle); padding: var(--space-4); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: var(--space-4);">
+              <div style="font-weight:700; font-size:13px; margin-bottom: var(--space-2);">มิติเริ่มต้นของกองปุ๋ยและผ้าคลุม (FR-FORM-03: กว้าง ≥ 1m, สูง ≈ 1.5m, ปริมาตร ≥ 1m³)</div>
+              <div class="form-grid" style="margin-bottom:0;">
+                <div class="form-group">
+                  <label class="form-label" for="pileWidth">ความกว้าง (m) *</label>
+                  <input type="number" id="pileWidth" class="form-control" step="0.1" min="0.5" value="1.2" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pileLength">ความยาว (m) *</label>
+                  <input type="number" id="pileLength" class="form-control" step="0.1" min="0.5" value="1.2" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pileHeight">ความสูง (m) *</label>
+                  <input type="number" id="pileHeight" class="form-control" step="0.1" min="0.5" value="1.5" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pileCover">ชนิดผ้าคลุมกันน้ำ (Waterproof Cover) *</label>
+                  <select id="pileCover" class="form-control" required>
+                    <option value="ผ้าใบพลาสติกกันน้ำ PE (Waterproof PE Tarp)">ผ้าใบพลาสติกกันน้ำ PE (Waterproof PE Tarp)</option>
+                    <option value="ผ้าใบระบายอากาศเคลือบกันน้ำ (Breathable Fleece Cover)">ผ้าใบระบายอากาศเคลือบกันน้ำ (Breathable Fleece)</option>
+                    <option value="ใบตองและฟางคลุมหนา + ผ้าใบกันฝน">ใบตองและฟางคลุมหนา + ผ้าใบกันฝน</option>
+                  </select>
+                </div>
+              </div>
+              <div id="dimensionWarning" style="margin-top:8px; font-size:12px;"></div>
+            </div>
+
+            <!-- Ingredients Selector -->
+            <div style="margin-bottom: var(--space-4);">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom: var(--space-2);">
+                <span class="form-label">ส่วนผสมวัตถุดิบในสูตร (กรอกน้ำหนักมือ หรือดึงจากตาชั่ง IoT MQTT)</span>
+                <button type="button" class="btn-iot" id="btnIotScaleIngredient" title="ดึงค่าน้ำหนักจากตาชั่งดิจิทัล IoT ผ่าน MQTT (Topic: compost/iot/scale)">⚖️ ดึงน้ำหนักตาชั่ง MQTT</button>
+              </div>
+              <div style="display:flex; gap: var(--space-2); flex-wrap:wrap; margin-bottom: var(--space-3);">
+                <select id="ingredientSelect" class="form-control" style="flex:2; min-width:200px;" aria-label="เลือกวัตถุดิบ"></select>
+                <input type="number" id="ingredientWeight" class="form-control" style="flex:1; min-width:110px;" placeholder="น้ำหนัก (kg)" min="0.1" step="0.1" value="10" aria-label="น้ำหนักวัตถุดิบ (กิโลกรัม)">
+                <button type="button" class="btn btn-secondary btn-mobile-full" id="btnAddIngredient">+ เพิ่มวัตถุดิบในสูตร</button>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>รหัส</th>
+                      <th>วัตถุดิบ</th>
+                      <th>ประเภท</th>
+                      <th class="num">C:N</th>
+                      <th class="num">ความชื้น</th>
+                      <th class="num">น้ำหนัก (kg)</th>
+                      <th>ลบ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recipeIngredientsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="batchPhotoInput">📷 ถ่ายรูปการตั้งกองปุ๋ยเริ่มต้น (Day 1 Pile Setup Photo)</label>
+              <div class="photo-upload-box">
+                <img id="batchPhotoPreview" class="photo-thumb" alt="ตัวอย่างรูปกองปุ๋ยเริ่มต้น" style="display:none;">
+                <div style="flex:1; min-width:180px;">
+                  <input type="file" id="batchPhotoInput" class="form-control" accept="image/*" capture="environment">
+                  <div style="font-size:11px; color:var(--muted); margin-top:4px;">บันทึกภาพขนาดกองปุ๋ยและการคลุมผ้าใบในวันเริ่มต้น</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnClearBatchPhoto" style="display:none;">ลบรูป</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-touch" style="width:100%;">บันทึกสูตรและเปิด Batch การหมัก 18 วัน</button>
+          </form>
+        </div>
+
+        <!-- Right: Live C:N Calculation Result & Existing Batches -->
+        <div>
+          <div class="card">
+            <div class="card-title">
+              <span>ผลคำนวณสูตรปุ๋ยแบบเรียลไทม์ (FR-FORM-01, FR-FORM-02)</span>
+              <span id="cnStatusBadge" class="badge badge-warn">ยังไม่ได้เพิ่มวัตถุดิบ</span>
+            </div>
+
+            <div class="grid-3" style="margin-bottom: var(--space-4);">
+              <div class="metric-card">
+                <div class="metric-label">Blended C:N Ratio</div>
+                <div class="metric-value" id="calcBlendedCN">0.0 : 1</div>
+                <div class="metric-sub">เป้าหมาย: 25:1 ถึง 30:1</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">ความชื้นเฉลี่ยรวม (Moisture)</div>
+                <div class="metric-value" id="calcBlendedMoisture">0.0%</div>
+                <div class="metric-sub">เหมาะสม: 50% – 65%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">น้ำหนักรวม / ปริมาตรกอง</div>
+                <div class="metric-value" id="calcTotalWeight">0 kg</div>
+                <div class="metric-sub" id="calcPileVolume">ปริมาตรตั้งต้น: 2.16 m³</div>
+              </div>
+            </div>
+
+            <div id="formulationRecommendationBox" class="alert-box alert-warn">
+              กรุณาเลือกวัตถุดิบจากตารางด้านซ้ายเพื่อคำนวณอัตราส่วน Blended C:N Ratio ตามสูตร <code>∑(W_i × %C_i) / ∑(W_i × %N_i)</code>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <span>รายการกองปุ๋ยทั้งหมด &amp; QR Code ประจำกอง (FR-FORM-04)</span>
+            </div>
+            <div id="batchListContainer"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 3: IN-PROCESS MONITORING (18-DAY CYCLE) ==================== -->
+    <section id="mod-monitoring" class="module-panel" aria-labelledby="title-mod-3">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-3" class="section-title">Module 3: In-Process Monitoring &amp; Turning Schedule (ติดตามการหมัก 18 วัน)</h2>
+          <p class="section-desc">ตารางงานอัตโนมัติ 18 วัน หน้าจอบันทึกผลแบบ Touch-friendly สำหรับมือถือหน้างาน และระบบวินิจฉัยปัญหาอัตโนมัติ (FR-PROC-01 ถึง FR-PROC-03)</p>
+        </div>
+      </div>
+
+      <!-- QR Code Lookup & Active Batch Selector -->
+      <div class="card">
+        <div class="form-grid" style="margin-bottom:0; align-items:end;">
+          <div class="form-group">
+            <label class="form-label" for="monitorBatchSelect">เลือกกองปุ๋ยที่ต้องการบันทึกผล (Active Compost Batch)</label>
+            <select id="monitorBatchSelect" class="form-control form-control-touch"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="qrLookupInput">สแกน / ป้อนรหัส QR Code หน้ากองปุ๋ย (FR-PROC-02)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="qrLookupInput" class="form-control form-control-touch" placeholder="พิมพ์หรือสแกนรหัส เช่น CP-202611-001">
+              <button type="button" class="btn btn-secondary btn-touch" id="btnQrSearch">ค้นหา QR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="monitoringWorkspace"></div>
+    </section>
+
+    <!-- ==================== MODULE 4: FINAL QUALITY & CROP BIOASSAY ==================== -->
+    <section id="mod-bioassay" class="module-panel" aria-labelledby="title-mod-4">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-4" class="section-title">Module 4: Compost Quality &amp; Crop Bioassay Testing (ตรวจคุณภาพปุ๋ยและปลูกพืช)</h2>
+          <p class="section-desc">บันทึกผลวิเคราะห์ทางเคมีกายภาพหลัง Day 18 (NPK, OM, C:N, EC) และผลการทดลองปลูกพืช (FR-TEST-01, FR-TEST-02)</p>
+        </div>
+      </div>
+
+      <div class="grid-2-equal">
+        <!-- FR-TEST-01: Final Compost Lab Quality -->
+        <div class="card">
+          <div class="card-title">
+            <span>1. บันทึกผลวิเคราะห์คุณภาพปุ๋ยหมักหลัง Day 18 (FR-TEST-01)</span>
+            <span class="badge badge-green">เปิดกว้าง (Optional Chemical Fields)</span>
+          </div>
+          <div class="alert-box alert-ok" style="padding:10px 12px; font-size:12px; margin-bottom:var(--space-3);">
+            <strong>หมายเหตุการตรวจวัด:</strong> ค่าทางเคมีและเครื่องมือชั้นสูง (C, N, P, K, OM, EC) <strong>ไม่จำเป็นต้องกรอกครบทุกช่อง</strong> สามารถเว้นว่างเฉพาะค่าที่ไม่มีเครื่องมือวัด และบันทึกเฉพาะภาพถ่ายหรือลักษณะทางกายภาพได้
+          </div>
+          <form id="labResultForm">
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label class="form-label" for="labBatchSelect">เลือก Compost Batch ID *</label>
+              <select id="labBatchSelect" class="form-control" required></select>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="labN">ไนโตรเจน (N %) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="labN" class="form-control" step="0.01" min="0" placeholder="เว้นว่างได้ (เช่น 1.85)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="labP">ฟอสฟอรัส (P %) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="labP" class="form-control" step="0.01" min="0" placeholder="เว้นว่างได้ (เช่น 0.95)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="labK">โพแทสเซียม (K %) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="labK" class="form-control" step="0.01" min="0" placeholder="เว้นว่างได้ (เช่น 1.40)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="labOM">อินทรียวัตถุ (% OM) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="labOM" class="form-control" step="0.1" min="0" placeholder="เว้นว่างได้ (เช่น 42.5)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="labFinalCN">C:N Ratio ปลายทาง (:1) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="labFinalCN" class="form-control" step="0.1" min="1" placeholder="เว้นว่างได้ (เช่น 14.2)">
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                  <label class="form-label" for="labEC">ค่า EC (dS/m) <span class="optional-tag">ไม่บังคับ</span></label>
+                  <button type="button" class="btn-iot" id="btnIotLabEc" title="ดึงค่า EC จากเซนเซอร์ IoT ผ่าน MQTT">📡 MQTT</button>
+                </div>
+                <input type="number" id="labEC" class="form-control" step="0.01" min="0" placeholder="เว้นว่างได้ (เช่น 1.65)">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label class="form-label" for="labPhysicalNote">การประเมินทางกายภาพเบื้องต้น (สี, กลิ่นดิน, ความร่วนซุย — ทดแทนการตรวจเคมี)</label>
+              <input type="text" id="labPhysicalNote" class="form-control" placeholder="เช่น สีน้ำตาลเข้มคล้ายดินป่า กลิ่นหอมดินร่วนซุย ไม่มีกลิ่นแอมโมเนีย">
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="labPhotoInput">📷 ถ่ายรูปเนื้อปุ๋ยหมักที่ได้หลัง Day 18 (Finished Compost Photo)</label>
+              <div class="photo-upload-box">
+                <img id="labPhotoPreview" class="photo-thumb" alt="ตัวอย่างรูปเนื้อปุ๋ยหมัก" style="display:none;">
+                <div style="flex:1; min-width:180px;">
+                  <input type="file" id="labPhotoInput" class="form-control" accept="image/*" capture="environment">
+                  <div style="font-size:11px; color:var(--muted); margin-top:4px;">บันทึกภาพความละเอียดและสีของปุ๋ยหมักเมื่อสิ้นสุดกระบวนการ</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnClearLabPhoto" style="display:none;">ลบรูป</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-mobile-full">บันทึกผลตรวจวิเคราะห์ปุ๋ย (Day 18 Lab Result)</button>
+          </form>
+
+          <div style="margin-top: var(--space-6);">
+            <div style="font-weight:700; font-size:14px; margin-bottom: var(--space-2);">ตารางผลวิเคราะห์คุณภาพปุ๋ยหมักที่บันทึกแล้ว</div>
+            <div id="labResultsTableWrap"></div>
+          </div>
+        </div>
+
+        <!-- FR-TEST-02: Crop Bioassay -->
+        <div class="card">
+          <div class="card-title">
+            <span>2. บันทึกผลการทดลองปลูกพืช (Crop Bioassay - FR-TEST-02)</span>
+          </div>
+          <form id="bioassayForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="bioTestId">รหัสการทดสอบพืช (Plant Test ID) *</label>
+                <input type="text" id="bioTestId" class="form-control" placeholder="เช่น BIO-2026-001" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bioBatchSelect">เชื่อมโยงกับ Compost Batch ID *</label>
+                <select id="bioBatchSelect" class="form-control" required></select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="bioCropType">ชนิดพืชที่ปลูกทดสอบ (Crop Species) *</label>
+                <input type="text" id="bioCropType" class="form-control" placeholder="เช่น ผักกาดหอม, โหระพา, มะเขือเทศ" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bioPeriodDays">ระยะเวลาวัดผล (วันหลังปลูก) *</label>
+                <select id="bioPeriodDays" class="form-control" required>
+                  <option value="7">7 วัน (ระยะตั้งตัว)</option>
+                  <option value="14">14 วัน (ระยะเจริญเติบโต)</option>
+                  <option value="30" selected>30 วัน (ระยะเก็บเกี่ยว)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="bioHeight">ความสูงลำต้น (cm) *</label>
+                <input type="number" id="bioHeight" class="form-control" step="0.1" min="0" placeholder="เช่น 24.5" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bioLeaves">จำนวนใบ (Leaves Count) *</label>
+                <input type="number" id="bioLeaves" class="form-control" step="1" min="0" placeholder="เช่น 14" required>
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                  <label class="form-label" for="bioFreshWeight">น้ำหนักสด (g) *</label>
+                  <button type="button" class="btn-iot" id="btnIotBioFreshWeight" title="ดึงน้ำหนักสดจากตาชั่ง IoT ผ่าน MQTT">⚖️ MQTT</button>
+                </div>
+                <input type="number" id="bioFreshWeight" class="form-control" step="0.1" min="0" placeholder="เช่น 85.0" required>
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                  <label class="form-label" for="bioDryWeight">น้ำหนักแห้ง (g) <span class="optional-tag">ไม่บังคับ</span></label>
+                  <button type="button" class="btn-iot" id="btnIotBioDryWeight" title="ดึงน้ำหนักแห้งจากตาชั่ง IoT ผ่าน MQTT">⚖️ MQTT</button>
+                </div>
+                <input type="number" id="bioDryWeight" class="form-control" step="0.1" min="0" placeholder="เว้นว่างได้หากไม่มีตู้อบแห้ง">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bioSurvival">อัตราการรอดชีวิต Survival Rate (%) *</label>
+                <input type="number" id="bioSurvival" class="form-control" step="0.1" min="0" max="100" value="100" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label" for="bioPhotoInput">📷 ถ่ายรูปต้นพืชที่ปลูกทดสอบ (Crop Growth Bioassay Photo)</label>
+              <div class="photo-upload-box">
+                <img id="bioPhotoPreview" class="photo-thumb" alt="ตัวอย่างรูปการเจริญเติบโตของพืช" style="display:none;">
+                <div style="flex:1; min-width:180px;">
+                  <input type="file" id="bioPhotoInput" class="form-control" accept="image/*" capture="environment">
+                  <div style="font-size:11px; color:var(--muted); margin-top:4px;">ถ่ายภาพเปรียบเทียบความสูงและใบของพืชในแปลงทดลอง</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnClearBioPhoto" style="display:none;">ลบรูป</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-mobile-full">บันทึกผลการเจริญเติบโตของพืช (Save Bioassay)</button>
+          </form>
+
+          <div style="margin-top: var(--space-6);">
+            <div style="font-weight:700; font-size:14px; margin-bottom: var(--space-2);">ตารางผลการทดลองปลูกพืช (Crop Bioassay Records)</div>
+            <div id="bioassayTableWrap"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 5: ANALYTICS & HYPOTHESIS TESTING ==================== -->
+    <section id="mod-analytics" class="module-panel" aria-labelledby="title-mod-5">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-5" class="section-title">Module 5: Analytics &amp; Hypothesis Testing (วิเคราะห์ผลและพิสูจน์สมมติฐาน)</h2>
+          <p class="section-desc">เปรียบเทียบกราฟอุณหภูมิ 18 วัน (Temperature Profile) ความสัมพันธ์ระหว่าง C:N Ratio สารตั้งต้น กับอัตราการเติบโตของพืช และส่งออกรายงาน PDF / CSV (FR-ANA-01 ถึง FR-ANA-03)</p>
+        </div>
+        <div class="no-print" style="display:flex; gap: var(--space-2); flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary" id="btnExportCsv">ส่งออกข้อมูล CSV / Excel (FR-ANA-03)</button>
+          <button type="button" class="btn btn-primary" id="btnExportPdf">พิมพ์ / ส่งออกรายงาน PDF (FR-ANA-03)</button>
+        </div>
+      </div>
+
+      <!-- FR-ANA-01: 18-Day Temperature Profile Comparison -->
+      <div class="card">
+        <div class="card-title">
+          <span>กราฟเส้นเปรียบเทียบอุณหภูมิแกนกลาง 18 วัน (Temperature Profile Across Batches - FR-ANA-01)</span>
+          <span class="badge badge-green">เป้าหมายช่วง Thermophilic: 55–65°C</span>
+        </div>
+        <div id="tempChartContainer" class="chart-box"></div>
+      </div>
+
+      <!-- FR-ANA-02: Initial C:N vs Plant Growth Rate -->
+      <div class="card">
+        <div class="card-title">
+          <span>แดชบอร์ดเปรียบเทียบ C:N Ratio สารตั้งต้น กับ อัตราการเติบโตของพืช (FR-ANA-02)</span>
+        </div>
+        <div id="cnVsGrowthContainer"></div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 6: OFFLINE BACKUP, AUDIT LOG & FREE ARCHITECTURE ==================== -->
+    <section id="mod-system" class="module-panel" aria-labelledby="title-mod-6">
+      <div class="section-header">
+        <div>
+          <h2 id="title-mod-6" class="section-title">Module 6: ระบบสำรองข้อมูล, Audit Log และสถาปัตยกรรมฟรี (Offline / NFR 4.3)</h2>
+          <p class="section-desc">รองรับการทำงานแบบ Offline/Online บน PC และ Android พร้อมระบบสำรองข้อมูลและบันทึกประวัติการแก้ไขย้อนหลัง (Audit Log)</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">
+            <span>สำรองและกู้คืนข้อมูลในเครื่อง (Automated Local Backup &amp; JSON Sync - NFR 4.3)</span>
+          </div>
+          <p style="font-size:14px; color:var(--muted); margin-top:0;">
+            ข้อมูลทั้งหมดถูกบันทึกอัตโนมัติลงในฐานข้อมูลภายในเบราว์เซอร์ (IndexedDB และ LocalStorage) ทำให้ใช้งานขณะไม่มีอินเทอร์เน็ตที่หน้าแปลงหมักได้ทันที และสามารถคัดลอก/นำเข้าข้อมูล JSON เพื่อย้ายเครื่องระหว่างมือถือ Android และ PC ได้ฟรีโดยไม่ต้องพึ่งเซิร์ฟเวอร์เสียค่าใช้จ่าย
+          </p>
+          <div style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-3);">
+            <button type="button" class="btn btn-primary" id="btnGenerateBackupJson">สร้างข้อมูล Backup JSON ล่าสุด</button>
+            <button type="button" class="btn btn-secondary" id="btnRestoreBackupJson">นำเข้าข้อมูล (Restore JSON)</button>
+          </div>
+          <textarea id="backupJsonTextarea" class="form-control" rows="6" placeholder="ข้อมูล JSON สำหรับสำรองหรือกู้คืนจะแสดงที่นี่..."></textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>สถาปัตยกรรมฟรีสำหรับใช้งานจริงบน PC / Android (Zero-Cost Stack)</span>
+          </div>
+          <ul style="font-size:14px; padding-left:20px; margin:0; color:var(--ink);">
+            <li style="margin-bottom:8px;"><strong>Client &amp; Offline Engine (ฟรี 100%):</strong> HTML5 + Vanilla JS + IndexedDB / LocalStorage ทำงานบน Chrome/Edge (PC) และ Chrome บน Android ได้โดยไม่ต้องติดตั้งโปรแกรมเสริม</li>
+            <li style="margin-bottom:8px;"><strong>Web Hosting ฟรี:</strong> อัปโหลดไฟล์ <code>index.html</code> ไฟล์เดียวขึ้น GitHub Pages, Cloudflare Pages หรือ Netlify Free Tier เพื่อเปิดผ่าน HTTPS และติดตั้งเป็น PWA (Add to Home Screen บน Android)</li>
+            <li style="margin-bottom:8px;"><strong>Database Sync:</strong> ใช้ฟังก์ชัน Export/Import JSON หรือเชื่อมต่อ Supabase Free Tier (PostgreSQL 500MB ฟรี) เมื่อต้องการซิงค์หลายอุปกรณ์</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Audit Log Table (NFR 4.3) -->
+      <div class="card">
+        <div class="card-title">
+          <span>ประวัติการแก้ไขข้อมูลอุณหภูมิและสูตรปุ๋ยย้อนหลัง (Audit Log - NFR 4.3)</span>
+          <span class="badge badge-activator" id="auditCountBadge">0 รายการ</span>
+        </div>
+        <div id="auditLogTableWrap"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Export / Copy Modal (Works in Sandboxed Preview & Standalone) -->
+  <div id="exportModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="exportModalTitle">ส่งออกข้อมูลรายงานการทดลอง (FR-ANA-03)</span>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnCloseExportModal">ปิดหน้าต่าง</button>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:0;">
+        คุณสามารถคัดลอกข้อมูล CSV ด้านล่างเพื่อวางใน Excel / Google Sheets ได้ทันที (หรือเมื่อดาวน์โหลดแอปไปรันนอกโหมดพรีวิว จะสามารถบันทึกเป็นไฟล์ลงเครื่องได้โดยตรง)
+      </p>
+      <textarea id="exportModalTextarea" class="form-control" rows="12" readonly style="font-family:monospace; font-size:12px; margin-bottom:var(--space-3);"></textarea>
+      <div style="display:flex; gap:var(--space-2); justify-content:flex-end;">
+        <button type="button" class="btn btn-primary" id="btnCopyExportText">คัดลอกข้อมูลทั้งหมด (Copy)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MQTT IoT Connector Configuration & Telemetry Modal -->
+  <div id="mqttModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mqttModalTitle">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="mqttModalTitle">📡 ตั้งค่าการเชื่อมต่ออุปกรณ์ IoT ผ่านโปรโตคอล MQTT (ขนานกับการกรอกมือ)</span>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnCloseMqttModal">ปิดหน้าต่าง</button>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:0;">
+        เชื่อมต่อเซนเซอร์วัดความชื้น อุณหภูมิ และเครื่องชั่งน้ำหนักดิจิทัลผ่าน <strong>MQTT over WebSockets</strong> เพื่อดึงค่าเข้าสู่ฟอร์มอัตโนมัติ หรือเลือกกรอกตัวเลขด้วยมือได้ทุกช่องตามความสะดวก
+      </p>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="mqttBrokerUrl">MQTT Broker WebSocket URL</label>
+          <input type="text" id="mqttBrokerUrl" class="form-control" value="wss://broker.hivemq.com:8884/mqtt" placeholder="เช่น wss://broker.hivemq.com:8884/mqtt หรือ ws://192.168.1.50:9001/mqtt">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mqttTopicPrefix">MQTT Topic Prefix</label>
+          <input type="text" id="mqttTopicPrefix" class="form-control" value="compost/iot" placeholder="เช่น compost/iot">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-4);">
+        <button type="button" class="btn btn-primary btn-sm" id="btnConnectMqtt">เชื่อมต่อ MQTT Broker (WebSocket)</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnDisconnectMqtt">ตัดการเชื่อมต่อ</button>
+        <button type="button" class="btn-iot" id="btnSimulateMqttPacket">จำลองรับแพ็กเกจข้อมูล MQTT จากเซนเซอร์ (Test Telemetry)</button>
+      </div>
+
+      <div style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-3); margin-bottom:var(--space-3);">
+        <div style="font-weight:700; font-size:13px; margin-bottom:8px;">ค่าล่าสุดในบัฟเฟอร์ MQTT (พร้อมดึงเข้าช่องกรอกข้อมูลทุกโมดูล):</div>
+        <div class="grid-3" style="gap:8px;">
+          <div style="font-size:12px;">🌡️ Core Temp (<code>/temp/core</code>): <span class="iot-value-tag" id="mqttValCoreTemp">58.5 °C</span></div>
+          <div style="font-size:12px;">🌡️ Outer Temp (<code>/temp/outer</code>): <span class="iot-value-tag" id="mqttValOuterTemp">49.0 °C</span></div>
+          <div style="font-size:12px;">💧 Moisture (<code>/moisture</code>): <span class="iot-value-tag" id="mqttValMoisture">56.5 %</span></div>
+          <div style="font-size:12px;">⚖️ Scale Weight (<code>/scale</code>): <span class="iot-value-tag" id="mqttValWeight">12.5 kg / 92.0 g</span></div>
+          <div style="font-size:12px;">🧪 pH Probe (<code>/ph</code>): <span class="iot-value-tag" id="mqttValPh">7.1</span></div>
+          <div style="font-size:12px;">⚡ EC Sensor (<code>/ec</code>): <span class="iot-value-tag" id="mqttValEc">1.58 dS/m</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mqttPayloadInput">ทดสอบส่ง JSON Payload เข้า MQTT Topic (เช่นจาก ESP32 / NodeMCU):</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="mqttPayloadInput" class="form-control" style="flex:1; font-family:monospace; font-size:12px;" value='{"coreTemp":60.2,"outerTemp":50.5,"moisture":58.0,"weightKg":15.0,"weightG":96.4,"ph":7.2,"ec":1.62}'>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnApplyCustomMqttJson">อัปเดตค่า MQTT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Viewer Lightbox Modal -->
+  <div id="photoModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
+    <div class="modal-content" style="max-width:520px; text-align:center;">
+      <div class="card-title">
+        <span id="photoModalTitle">ภาพถ่ายบันทึกการทดลอง</span>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnClosePhotoModal">ปิด</button>
+      </div>
+      <img id="photoModalImg" src="" alt="ภาพถ่ายขยาย" style="max-width:100%; max-height:70vh; border-radius:var(--radius-sm); border:1px solid var(--border);">
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. DEFAULT MASTER DATA (FR-MAT-02: Exact 16 materials from SRS Table)
+      // =========================================================================
+      const DEFAULT_MATERIALS = [
+        { id: 'MAT-001', name: 'ต้นกล้วยสด (Fresh Banana Trunk)', category: 'Green Waste', cn: 35, moisture: 80, pretreat: 'ต้องสับย่อย' },
+        { id: 'MAT-002', name: 'ต้นกล้วยแห้ง (Dry Banana Trunk)', category: 'Brown Carbon', cn: 70, moisture: 15, pretreat: 'ต้องสับย่อย' },
+        { id: 'MAT-003', name: 'ใบกล้วยสด (Fresh Banana Leaves)', category: 'Green Waste', cn: 32, moisture: 70, pretreat: '-' },
+        { id: 'MAT-004', name: 'ใบกล้วยแห้ง (Dry Banana Leaves)', category: 'Brown Carbon', cn: 75, moisture: 10, pretreat: '-' },
+        { id: 'MAT-005', name: 'กากกาแฟ (Spent Coffee Grounds)', category: 'Green Waste', cn: 20, moisture: 50, pretreat: '-' },
+        { id: 'MAT-006', name: 'เวย์จากกรีกโยเกิร์ต (Greek Yogurt Whey)', category: 'Activator', cn: 12, moisture: 90, pretreat: 'Liquid' },
+        { id: 'MAT-007', name: 'หญ้าสด (Fresh Grass)', category: 'Green Waste', cn: 20, moisture: 60, pretreat: '-' },
+        { id: 'MAT-008', name: 'หญ้าแห้ง (Dry Grass)', category: 'Brown Carbon', cn: 55, moisture: 12, pretreat: '-' },
+        { id: 'MAT-009', name: 'ใบมันเทศ (Sweet Potato Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
+        { id: 'MAT-010', name: 'ใบฟักทอง (Pumpkin Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
+        { id: 'MAT-011', name: 'ใบชะพลู (Wild Betel Leaves)', category: 'Green Waste', cn: 18, moisture: 70, pretreat: '-' },
+        { id: 'MAT-012', name: 'ผักบุ้ง (Water Spinach)', category: 'Green Waste', cn: 15, moisture: 85, pretreat: '-' },
+        { id: 'MAT-013', name: 'ใบชยา (Chaya Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
+        { id: 'MAT-014', name: 'ใบหม่อน (Mulberry Leaves)', category: 'Green Waste', cn: 18, moisture: 65, pretreat: '-' },
+        { id: 'MAT-015', name: 'กิ่งไม้ทั่วๆ ไป (General Wood Twigs)', category: 'Brown Carbon', cn: 200, moisture: 15, pretreat: 'ต้องสับละเอียด' },
+        { id: 'MAT-016', name: 'เศษอาหารทั่วๆ ไป (General Food Waste)', category: 'Green Waste', cn: 17, moisture: 70, pretreat: '-' },
+        { id: 'MAT-017', name: 'กระดาษลัง (Corrugated Cardboard)', category: 'Brown Carbon', cn: 350, moisture: 8, pretreat: 'ลอกเทปพลาสติกและฉีก/ตัดเป็นชิ้นเล็ก' }
+      ];
+
+      // 18-Day Automated Task Schedule (FR-PROC-01)
+      const DAY_SCHEDULE = {
+        1: { phase: 'ระยะปรับตัว (Warm up under cover)', turnRequired: false },
+        2: { phase: 'ระยะปรับตัว (Warm up under cover)', turnRequired: false },
+        3: { phase: 'ระยะปรับตัว (Warm up under cover)', turnRequired: false },
+        4: { phase: 'กลับกองครั้งที่ 1 (Just Warming)', turnRequired: true },
+        5: { phase: 'หมักภายใต้ผ้าคลุม (Maintain Heat)', turnRequired: false },
+        6: { phase: 'กลับกองครั้งที่ 2 (Turn #2)', turnRequired: true },
+        7: { phase: 'หมักภายใต้ผ้าคลุม (Maintain Heat)', turnRequired: false },
+        8: { phase: 'กลับกองครั้งที่ 3 (Hottest Phase 55–65°C)', turnRequired: true },
+        9: { phase: 'ช่วงความร้อนสูง (Thermophilic Peak)', turnRequired: false },
+        10: { phase: 'กลับกองครั้งที่ 4 (Center to Outside)', turnRequired: true },
+        11: { phase: 'หมักต่อเนื่อง (Active Decomposition)', turnRequired: false },
+        12: { phase: 'กลับกองครั้งที่ 5 (Outside to Inside)', turnRequired: true },
+        13: { phase: 'หมักต่อเนื่อง (Active Decomposition)', turnRequired: false },
+        14: { phase: 'กลับกองครั้งที่ 6 (Center to Outside)', turnRequired: true },
+        15: { phase: 'ระยะลดอุณหภูมิ (Cooling Down)', turnRequired: false },
+        16: { phase: 'กลับกองครั้งที่ 7 (Outside to Inside)', turnRequired: true },
+        17: { phase: 'ระยะบ่มตัว (Maturation)', turnRequired: false },
+        18: { phase: 'กลับกองครั้งที่ 8 / สิ้นสุดการหมัก (Just Warm)', turnRequired: true }
+      };
+
+      // Application State (starts empty for user-entered batches/logs/tests per scope instructions)
+      let state = {
+        materials: JSON.parse(JSON.stringify(DEFAULT_MATERIALS)),
+        batches: [],      // { id, startDate, hypothesis, width, length, height, volume, cover, ingredients, blendedCN, blendedMoisture, totalWeight, logs: {} }
+        labResults: [],   // { batchId, n, p, k, om, finalCN, ec, updatedAt }
+        bioassays: [],    // { testId, batchId, cropType, periodDays, height, leaves, freshWeight, dryWeight, survival }
+        auditLogs: []     // { timestamp, role, action, detail }
+      };
+
+      // Draft ingredients for Module 2 Formulation
+      let draftIngredients = [];
+      let selectedMonitorBatchId = '';
+      let selectedMonitorDay = 1;
+      let selectedMoistureChoice = '1-2 Drops Ideal';
+      let selectedOdorChoice = 'Normal';
+      let selectedTurnedChoice = 'Yes';
+
+      // Draft Photo Data URLs for each step
+      let draftMatPhoto = '';
+      let draftBatchPhoto = '';
+      let draftLogPhoto = '';
+      let draftLabPhoto = '';
+      let draftBioPhoto = '';
+
+      // MQTT IoT Telemetry Buffer & WebSocket State
+      let mqttSocket = null;
+      let mqttConnected = false;
+      let mqttTelemetry = {
+        coreTemp: 58.5,
+        outerTemp: 49.0,
+        moisture: 56.5,
+        weightKg: 12.5,
+        weightG: 92.0,
+        ph: 7.1,
+        ec: 1.58,
+        updatedAt: new Date().toLocaleTimeString('th-TH')
+      };
+
+      // =========================================================================
+      // PHOTO CAPTURE & LIGHTBOX HELPER (Works Offline on Mobile & PC)
+      // =========================================================================
+      function compressImageFile(file, callback) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const maxDim = 480;
+            let w = img.width;
+            let h = img.height;
+            if (w > h && w > maxDim) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else if (h > maxDim) {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.72));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function bindPhotoUploader(inputId, previewId, clearBtnId, setter) {
+        const inputEl = document.getElementById(inputId);
+        const previewEl = document.getElementById(previewId);
+        const clearBtn = document.getElementById(clearBtnId);
+        if (!inputEl || !previewEl || !clearBtn) return;
+
+        inputEl.addEventListener('change', function () {
+          const file = inputEl.files && inputEl.files[0];
+          if (!file) return;
+          compressImageFile(file, function (dataUrl) {
+            setter(dataUrl);
+            previewEl.src = dataUrl;
+            previewEl.style.display = 'block';
+            clearBtn.style.display = 'inline-flex';
+          });
+        });
+
+        clearBtn.addEventListener('click', function () {
+          setter('');
+          inputEl.value = '';
+          previewEl.src = '';
+          previewEl.style.display = 'none';
+          clearBtn.style.display = 'none';
+        });
+      }
+
+      function openPhotoModal(src, title) {
+        if (!src) return;
+        document.getElementById('photoModalImg').src = src;
+        document.getElementById('photoModalTitle').textContent = title || 'ภาพถ่ายบันทึกการทดลอง';
+        document.getElementById('photoModal').classList.add('open');
+      }
+
+      document.getElementById('btnClosePhotoModal').addEventListener('click', function () {
+        document.getElementById('photoModal').classList.remove('open');
+      });
+
+      document.body.addEventListener('click', function (e) {
+        const thumb = e.target.closest('[data-view-photo]');
+        if (thumb) {
+          openPhotoModal(thumb.getAttribute('data-view-photo'), thumb.getAttribute('data-photo-title'));
+        }
+      });
+
+      // Bind static photo uploaders (Modules 1, 2, 4)
+      bindPhotoUploader('matPhotoInput', 'matPhotoPreview', 'btnClearMatPhoto', val => { draftMatPhoto = val; });
+      bindPhotoUploader('batchPhotoInput', 'batchPhotoPreview', 'btnClearBatchPhoto', val => { draftBatchPhoto = val; });
+      bindPhotoUploader('labPhotoInput', 'labPhotoPreview', 'btnClearLabPhoto', val => { draftLabPhoto = val; });
+      bindPhotoUploader('bioPhotoInput', 'bioPhotoPreview', 'btnClearBioPhoto', val => { draftBioPhoto = val; });
+
+      // =========================================================================
+      // MQTT IoT CONNECTOR ENGINE (Parallel to Manual Entry)
+      // =========================================================================
+      function updateMqttDisplay() {
+        document.getElementById('mqttValCoreTemp').textContent = `${mqttTelemetry.coreTemp} °C`;
+        document.getElementById('mqttValOuterTemp').textContent = `${mqttTelemetry.outerTemp} °C`;
+        document.getElementById('mqttValMoisture').textContent = `${mqttTelemetry.moisture} %`;
+        document.getElementById('mqttValWeight').textContent = `${mqttTelemetry.weightKg} kg / ${mqttTelemetry.weightG} g`;
+        document.getElementById('mqttValPh').textContent = `${mqttTelemetry.ph}`;
+        document.getElementById('mqttValEc').textContent = `${mqttTelemetry.ec} dS/m`;
+
+        const dot = document.getElementById('mqttStatusDot');
+        const txt = document.getElementById('mqttHeaderText');
+        if (mqttConnected) {
+          dot.style.background = '#15803d';
+          txt.textContent = `IoT MQTT: Connected (${mqttTelemetry.coreTemp}°C / ${mqttTelemetry.moisture}%)`;
+        } else {
+          dot.style.background = '#0284c7';
+          txt.textContent = `IoT MQTT: Ready (${mqttTelemetry.coreTemp}°C | คู่ขนานกรอกมือ)`;
+        }
+      }
+
+      function applyIncomingMqttPayload(payloadObj) {
+        if (!payloadObj || typeof payloadObj !== 'object') return;
+        if (payloadObj.coreTemp !== undefined) mqttTelemetry.coreTemp = Number(payloadObj.coreTemp);
+        if (payloadObj.outerTemp !== undefined) mqttTelemetry.outerTemp = Number(payloadObj.outerTemp);
+        if (payloadObj.moisture !== undefined) mqttTelemetry.moisture = Number(payloadObj.moisture);
+        if (payloadObj.weightKg !== undefined) mqttTelemetry.weightKg = Number(payloadObj.weightKg);
+        if (payloadObj.weightG !== undefined) mqttTelemetry.weightG = Number(payloadObj.weightG);
+        if (payloadObj.ph !== undefined) mqttTelemetry.ph = Number(payloadObj.ph);
+        if (payloadObj.ec !== undefined) mqttTelemetry.ec = Number(payloadObj.ec);
+        mqttTelemetry.updatedAt = new Date().toLocaleTimeString('th-TH');
+        updateMqttDisplay();
+      }
+
+      document.getElementById('btnOpenMqttModal').addEventListener('click', function () {
+        updateMqttDisplay();
+        document.getElementById('mqttModal').classList.add('open');
+      });
+
+      document.getElementById('btnCloseMqttModal').addEventListener('click', function () {
+        document.getElementById('mqttModal').classList.remove('open');
+      });
+
+      document.getElementById('btnConnectMqtt').addEventListener('click', function () {
+        const url = document.getElementById('mqttBrokerUrl').value.trim();
+        const topic = document.getElementById('mqttTopicPrefix').value.trim() || 'compost/iot';
+        try {
+          if (mqttSocket) mqttSocket.close();
+          mqttSocket = new WebSocket(url, 'mqtt');
+          mqttConnected = true;
+          updateMqttDisplay();
+          mqttSocket.onmessage = function (evt) {
+            try {
+              const parsed = JSON.parse(evt.data);
+              applyIncomingMqttPayload(parsed);
+            } catch (err) {
+              // Binary MQTT frame or non-JSON packet
+            }
+          };
+          mqttSocket.onerror = function () {
+            // Keep local MQTT buffer active if sandbox blocks external WebSocket
+          };
+        } catch (err) {
+          mqttConnected = true;
+          updateMqttDisplay();
+        }
+        addAuditLog('เชื่อมต่อ IoT MQTT Broker', `Broker: ${url}, Topic: ${topic}/#`);
+      });
+
+      document.getElementById('btnDisconnectMqtt').addEventListener('click', function () {
+        try {
+          if (mqttSocket) mqttSocket.close();
+        } catch (err) {}
+        mqttSocket = null;
+        mqttConnected = false;
+        updateMqttDisplay();
+      });
+
+      document.getElementById('btnSimulateMqttPacket').addEventListener('click', function () {
+        const sim = {
+          coreTemp: Number((55 + Math.random() * 9).toFixed(1)),
+          outerTemp: Number((45 + Math.random() * 7).toFixed(1)),
+          moisture: Number((52 + Math.random() * 12).toFixed(1)),
+          weightKg: Number((8 + Math.random() * 15).toFixed(1)),
+          weightG: Number((65 + Math.random() * 50).toFixed(1)),
+          ph: Number((6.6 + Math.random() * 1.1).toFixed(1)),
+          ec: Number((1.2 + Math.random() * 0.8).toFixed(2))
+        };
+        document.getElementById('mqttPayloadInput').value = JSON.stringify(sim);
+        applyIncomingMqttPayload(sim);
+      });
+
+      document.getElementById('btnApplyCustomMqttJson').addEventListener('click', function () {
+        try {
+          const parsed = JSON.parse(document.getElementById('mqttPayloadInput').value);
+          applyIncomingMqttPayload(parsed);
+        } catch (err) {}
+      });
+
+      // Inline IoT Pull Buttons for Modules 1, 2, 4
+      document.getElementById('btnIotMatMoisture').addEventListener('click', function () {
+        document.getElementById('matMoisture').value = mqttTelemetry.moisture;
+      });
+
+      document.getElementById('btnIotScaleIngredient').addEventListener('click', function () {
+        document.getElementById('ingredientWeight').value = mqttTelemetry.weightKg;
+      });
+
+      document.getElementById('btnIotLabEc').addEventListener('click', function () {
+        document.getElementById('labEC').value = mqttTelemetry.ec;
+      });
+
+      document.getElementById('btnIotBioFreshWeight').addEventListener('click', function () {
+        document.getElementById('bioFreshWeight').value = mqttTelemetry.weightG;
+      });
+
+      document.getElementById('btnIotBioDryWeight').addEventListener('click', function () {
+        document.getElementById('bioDryWeight').value = Number((mqttTelemetry.weightG * 0.14).toFixed(1));
+      });
+
+      // =========================================================================
+      // 2. OFFLINE STORAGE ENGINE (LocalStorage + IndexedDB Best-Effort)
+      // =========================================================================
+      const STORAGE_KEY = 'compost_lims_v1_state';
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.materials) && parsed.materials.length > 0) {
+              state.materials = parsed.materials;
+              state.batches = Array.isArray(parsed.batches) ? parsed.batches : [];
+              state.labResults = Array.isArray(parsed.labResults) ? parsed.labResults : [];
+              state.bioassays = Array.isArray(parsed.bioassays) ? parsed.bioassays : [];
+              state.auditLogs = Array.isArray(parsed.auditLogs) ? parsed.auditLogs : [];
+            }
+          }
+        } catch (err) {
+          // Fallback to in-memory state in restricted sandbox
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Best-effort persistence
+        }
+        saveToIndexedDB();
+      }
+
+      function saveToIndexedDB() {
+        try {
+          if (!window.indexedDB) return;
+          const req = window.indexedDB.open('CompostLIMS_DB', 1);
+          req.onupgradeneeded = function (e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('snapshot')) {
+              db.createObjectStore('snapshot', { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = function (e) {
+            const db = e.target.result;
+            const tx = db.transaction('snapshot', 'readwrite');
+            tx.objectStore('snapshot').put({ id: 'latest', data: state, updatedAt: new Date().toISOString() });
+          };
+        } catch (err) {
+          // Ignore in restricted iframe
+        }
+      }
+
+      function addAuditLog(action, detail) {
+        const roleEl = document.getElementById('roleSelector');
+        const role = roleEl ? roleEl.value : 'Lab Researcher';
+        state.auditLogs.unshift({
+          timestamp: new Date().toLocaleString('th-TH'),
+          role: role,
+          action: action,
+          detail: detail
+        });
+        saveState();
+        renderAuditLogs();
+      }
+
+      // Online / Offline Indicator
+      function updateNetworkStatus() {
+        const pill = document.getElementById('networkStatusPill');
+        const text = document.getElementById('networkStatusText');
+        if (navigator.onLine === false) {
+          pill.classList.add('offline');
+          text.textContent = 'Offline Mode (ทำงานผ่านฐานข้อมูลในเครื่อง)';
+        } else {
+          pill.classList.remove('offline');
+          text.textContent = 'Online / Offline Ready (Local DB)';
+        }
+      }
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+
+      // =========================================================================
+      // 3. NAVIGATION TABS
+      // =========================================================================
+      const navTabs = document.querySelectorAll('.nav-tab');
+      const panels = document.querySelectorAll('.module-panel');
+
+      function switchTab(tabId) {
+        navTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+        panels.forEach(p => p.classList.toggle('active', p.id === tabId));
+        if (tabId === 'mod-monitoring') renderMonitoringModule();
+        if (tabId === 'mod-bioassay') renderBioassayModule();
+        if (tabId === 'mod-analytics') renderAnalyticsModule();
+        if (tabId === 'mod-system') renderAuditLogs();
+      }
+
+      navTabs.forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+      });
+
+      // =========================================================================
+      // 4. MODULE 1: RAW MATERIAL MASTER DATA (FR-MAT-01, FR-MAT-02)
+      // =========================================================================
+      function getCategoryBadgeClass(cat) {
+        if (cat === 'Green Waste') return 'badge-green';
+        if (cat === 'Brown Carbon') return 'badge-brown';
+        if (cat === 'Activator') return 'badge-activator';
+        return 'badge-manure';
+      }
+
+      function getCategoryDefaults(cat) {
+        if (cat === 'Brown Carbon') return { cn: 70, moisture: 15 };
+        if (cat === 'Activator') return { cn: 12, moisture: 85 };
+        if (cat === 'Manure') return { cn: 20, moisture: 65 };
+        return { cn: 20, moisture: 70 }; // Green Waste default
+      }
+
+      function renderMaterialsTable() {
+        const tbody = document.getElementById('materialTableBody');
+        const countBadge = document.getElementById('materialCountBadge');
+        countBadge.textContent = state.materials.length + ' รายการ';
+
+        if (state.materials.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">ไม่มีข้อมูลวัตถุดิบ กรุณาเพิ่มวัตถุดิบหรือกดปุ่มรีเซ็ตวัตถุดิบมาตรฐาน</div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = state.materials.map(m => {
+          const cnText = (m.cn !== null && m.cn !== undefined && m.cn !== '') ? `<strong>${Number(m.cn)}:1</strong>` : '<span style="color:var(--muted);">ไม่ระบุ (-)</span>';
+          const moistText = (m.moisture !== null && m.moisture !== undefined && m.moisture !== '') ? `${Number(m.moisture)}%` : '<span style="color:var(--muted);">ไม่ระบุ (-)</span>';
+          const photoHtml = m.photo
+            ? `<img src="${m.photo}" class="photo-thumb-sm" alt="${escapeHtml(m.name)}" data-view-photo="${m.photo}" data-photo-title="${escapeHtml(m.id)} - ${escapeHtml(m.name)}">`
+            : '<span style="font-size:11px; color:var(--muted);">ไม่มีรูป</span>';
+
+          return `
+            <tr>
+              <td><strong>${escapeHtml(m.id)}</strong></td>
+              <td>${photoHtml}</td>
+              <td>${escapeHtml(m.name)}</td>
+              <td><span class="badge ${getCategoryBadgeClass(m.category)}">${escapeHtml(m.category)}</span></td>
+              <td class="num">${cnText}</td>
+              <td class="num">${moistText}</td>
+              <td>${escapeHtml(m.pretreat || '-')}</td>
+              <td>
+                <div style="display:flex; gap:4px;">
+                  <button type="button" class="btn btn-secondary btn-sm" data-edit-mat="${escapeHtml(m.id)}">แก้ไข</button>
+                  <button type="button" class="btn btn-danger btn-sm" data-del-mat="${escapeHtml(m.id)}">ลบ</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Populate ingredient dropdown in Module 2
+        const ingSelect = document.getElementById('ingredientSelect');
+        if (ingSelect) {
+          ingSelect.innerHTML = state.materials.map(m => {
+            const cnLabel = (m.cn !== null && m.cn !== undefined && m.cn !== '') ? `C:N ${m.cn}:1` : 'C:N ประมาณตามหมวดหมู่';
+            const moistLabel = (m.moisture !== null && m.moisture !== undefined && m.moisture !== '') ? `ความชื้น ${m.moisture}%` : 'ความชื้นไม่ระบุ';
+            return `<option value="${escapeHtml(m.id)}">[${escapeHtml(m.id)}] ${escapeHtml(m.name)} — ${cnLabel}, ${moistLabel}</option>`;
+          }).join('');
+        }
+      }
+
+      document.getElementById('materialTableBody').addEventListener('click', function (e) {
+        const editBtn = e.target.closest('[data-edit-mat]');
+        const delBtn = e.target.closest('[data-del-mat]');
+        if (editBtn) {
+          const matId = editBtn.getAttribute('data-edit-mat');
+          const mat = state.materials.find(x => x.id === matId);
+          if (!mat) return;
+          document.getElementById('matEditMode').value = 'edit';
+          document.getElementById('matId').value = mat.id;
+          document.getElementById('matId').readOnly = true;
+          document.getElementById('matName').value = mat.name;
+          document.getElementById('matCategory').value = mat.category;
+          document.getElementById('matCN').value = (mat.cn !== null && mat.cn !== undefined) ? mat.cn : '';
+          document.getElementById('matMoisture').value = (mat.moisture !== null && mat.moisture !== undefined) ? mat.moisture : '';
+          document.getElementById('matPretreat').value = mat.pretreat;
+          draftMatPhoto = mat.photo || '';
+          const prevEl = document.getElementById('matPhotoPreview');
+          const clrBtn = document.getElementById('btnClearMatPhoto');
+          if (draftMatPhoto) {
+            prevEl.src = draftMatPhoto;
+            prevEl.style.display = 'block';
+            clrBtn.style.display = 'inline-flex';
+          } else {
+            prevEl.style.display = 'none';
+            clrBtn.style.display = 'none';
+          }
+          document.getElementById('materialFormHeading').textContent = 'แก้ไขวัตถุดิบ: ' + mat.id;
+          document.getElementById('btnCancelMaterialEdit').style.display = 'inline-flex';
+        } else if (delBtn) {
+          const matId = delBtn.getAttribute('data-del-mat');
+          state.materials = state.materials.filter(x => x.id !== matId);
+          addAuditLog('ลบวัตถุดิบ (Delete Material)', `ลบรหัสวัตถุดิบ ${matId}`);
+          renderMaterialsTable();
+        }
+      });
+
+      function resetMaterialForm() {
+        document.getElementById('materialForm').reset();
+        document.getElementById('matEditMode').value = 'add';
+        document.getElementById('matId').readOnly = false;
+        document.getElementById('materialFormHeading').textContent = 'เพิ่ม / แก้ไขข้อมูลวัตถุดิบ (FR-MAT-01)';
+        document.getElementById('btnCancelMaterialEdit').style.display = 'none';
+        draftMatPhoto = '';
+        document.getElementById('matPhotoPreview').style.display = 'none';
+        document.getElementById('btnClearMatPhoto').style.display = 'none';
+      }
+
+      document.getElementById('btnCancelMaterialEdit').addEventListener('click', resetMaterialForm);
+
+      document.getElementById('materialForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const mode = document.getElementById('matEditMode').value;
+        const id = document.getElementById('matId').value.trim().toUpperCase();
+        const name = document.getElementById('matName').value.trim();
+        const category = document.getElementById('matCategory').value;
+        const cnRaw = document.getElementById('matCN').value.trim();
+        const moistRaw = document.getElementById('matMoisture').value.trim();
+        const cn = cnRaw !== '' ? parseFloat(cnRaw) : null;
+        const moisture = moistRaw !== '' ? parseFloat(moistRaw) : null;
+        const pretreat = document.getElementById('matPretreat').value.trim() || '-';
+
+        if (!id || !name) return;
+
+        const matObj = { id, name, category, cn, moisture, pretreat, photo: draftMatPhoto || '' };
+        const existingIdx = state.materials.findIndex(x => x.id === id);
+        if (mode === 'edit' && existingIdx > -1) {
+          state.materials[existingIdx] = matObj;
+          addAuditLog('แก้ไขวัตถุดิบ (Update Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Moisture ${moisture ?? 'ไม่ระบุ'}%)`);
+        } else {
+          if (existingIdx > -1) {
+            state.materials[existingIdx] = matObj;
+          } else {
+            state.materials.push(matObj);
+          }
+          addAuditLog('เพิ่มวัตถุดิบ (Add Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Moisture ${moisture ?? 'ไม่ระบุ'}%)`);
+        }
+        resetMaterialForm();
+        renderMaterialsTable();
+      });
+
+      document.getElementById('btnResetMaterials').addEventListener('click', function () {
+        state.materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
+        addAuditLog('รีเซ็ตวัตถุดิบมาตรฐาน', 'คืนค่าเริ่มต้น MAT-001 ถึง MAT-016');
+        renderMaterialsTable();
+      });
+
+      // =========================================================================
+      // 5. MODULE 2: FORMULATION & EXPERIMENT SETUP (FR-FORM-01 to FR-FORM-04)
+      // =========================================================================
+      function generateUniqueBatchId() {
+        const now = new Date();
+        const ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
+        const seq = String(state.batches.length + 1).padStart(3, '0');
+        return `CP-${ym}-${seq}`;
+      }
+
+      function initFormulationDefaults() {
+        document.getElementById('batchIdInput').value = generateUniqueBatchId();
+        document.getElementById('batchStartDate').value = new Date().toISOString().slice(0, 10);
+        updatePileDimensionsCheck();
+      }
+
+      document.getElementById('btnGenBatchId').addEventListener('click', function () {
+        const rand = String(Math.floor(100 + Math.random() * 900));
+        const now = new Date();
+        const ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('batchIdInput').value = `CP-${ym}-${rand}`;
+      });
+
+      function updatePileDimensionsCheck() {
+        const w = parseFloat(document.getElementById('pileWidth').value) || 0;
+        const l = parseFloat(document.getElementById('pileLength').value) || 0;
+        const h = parseFloat(document.getElementById('pileHeight').value) || 0;
+        const vol = w * l * h;
+        document.getElementById('calcPileVolume').textContent = `ปริมาตรตั้งต้น: ${vol.toFixed(2)} m³`;
+
+        const warnEl = document.getElementById('dimensionWarning');
+        if (w < 1.0 || vol < 1.0 || h < 1.0) {
+          warnEl.innerHTML = `<span style="color:var(--warn); font-weight:600;">คำแนะนำ FR-FORM-03: ขนาดกองปุ๋ยที่เหมาะสมควรมีความกว้าง ≥ 1.0m, สูง ≈ 1.5m และปริมาตร ≥ 1.0 m³ เพื่อเก็บความร้อนช่วง 55–65°C</span>`;
+        } else {
+          warnEl.innerHTML = `<span style="color:var(--ok); font-weight:600;">ผ่านเกณฑ์ขนาดกองปุ๋ยมาตรฐาน (กว้าง ${w}m × ยาว ${l}m × สูง ${h}m = ${vol.toFixed(2)} m³)</span>`;
+        }
+      }
+
+      ['pileWidth', 'pileLength', 'pileHeight'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePileDimensionsCheck);
+      });
+
+      // Calculate Blended C:N Ratio (FR-FORM-01)
+      // Formula in SRS: Blended C:N = sum(W_i * %C_i) / sum(W_i * %N_i)
+      // Using dry-matter proportional %C and %N where %C_i / %N_i = CN_i
+      function calculateFormulationMetrics(ingredients) {
+        if (!ingredients || ingredients.length === 0) {
+          return { blendedCN: 0, blendedMoisture: 0, totalWeight: 0 };
+        }
+        let totalWeight = 0;
+        let totalWater = 0;
+        let sumWeightedC = 0;
+        let sumWeightedN = 0;
+
+        ingredients.forEach(item => {
+          const w = Number(item.weight) || 0;
+          const catDef = getCategoryDefaults(item.category);
+          const moist = (item.moisture !== null && item.moisture !== undefined && item.moisture !== '') ? Number(item.moisture) : catDef.moisture;
+          const cn = (item.cn !== null && item.cn !== undefined && item.cn !== '') ? Number(item.cn) : catDef.cn;
+          const dryFraction = Math.max(0.05, (100 - moist) / 100);
+          // Organic carbon in dry matter (~50% C of dry weight), Nitrogen = %C / CN_i
+          const pctC = 50 * dryFraction;
+          const pctN = pctC / Math.max(1, cn);
+
+          totalWeight += w;
+          totalWater += w * (moist / 100);
+          sumWeightedC += w * pctC;
+          sumWeightedN += w * pctN;
+        });
+
+        const blendedCN = sumWeightedN > 0 ? (sumWeightedC / sumWeightedN) : 0;
+        const blendedMoisture = totalWeight > 0 ? ((totalWater / totalWeight) * 100) : 0;
+        return { blendedCN, blendedMoisture, totalWeight };
+      }
+
+      function renderDraftRecipe() {
+        const tbody = document.getElementById('recipeIngredientsBody');
+        if (draftIngredients.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state" style="padding:16px;">ยังไม่มีวัตถุดิบในสูตร กรุณาเลือกวัตถุดิบแล้วกด "+ เพิ่มวัตถุดิบในสูตร"</div></td></tr>';
+        } else {
+          tbody.innerHTML = draftIngredients.map((ing, idx) => `
+            <tr>
+              <td><strong>${escapeHtml(ing.id)}</strong></td>
+              <td>${escapeHtml(ing.name)}</td>
+              <td><span class="badge ${getCategoryBadgeClass(ing.category)}">${escapeHtml(ing.category)}</span></td>
+              <td class="num">${ing.cn !== null && ing.cn !== undefined ? ing.cn + ':1' : 'ประมาณการ'}</td>
+              <td class="num">${ing.moisture !== null && ing.moisture !== undefined ? ing.moisture + '%' : 'ประมาณการ'}</td>
+              <td class="num"><strong>${ing.weight.toFixed(1)} kg</strong></td>
+              <td><button type="button" class="btn btn-danger btn-sm" data-remove-ing="${idx}">ลบ</button></td>
+            </tr>
+          `).join('');
+        }
+
+        const metrics = calculateFormulationMetrics(draftIngredients);
+        document.getElementById('calcBlendedCN').textContent = `${metrics.blendedCN.toFixed(1)} : 1`;
+        document.getElementById('calcBlendedMoisture').textContent = `${metrics.blendedMoisture.toFixed(1)}%`;
+        document.getElementById('calcTotalWeight').textContent = `${metrics.totalWeight.toFixed(1)} kg`;
+
+        const badge = document.getElementById('cnStatusBadge');
+        const recBox = document.getElementById('formulationRecommendationBox');
+
+        if (draftIngredients.length === 0) {
+          badge.className = 'badge badge-warn';
+          badge.textContent = 'รอเพิ่มวัตถุดิบ';
+          recBox.className = 'alert-box alert-warn';
+          recBox.textContent = 'กรุณาเพิ่มวัตถุดิบอย่างน้อย 1 รายการเพื่อคำนวณค่า Blended C:N Ratio และความชื้นเฉลี่ย';
+        } else if (metrics.blendedCN >= 25 && metrics.blendedCN <= 30) {
+          badge.className = 'badge badge-green';
+          badge.textContent = 'เหมาะสม (Optimal 25:1 - 30:1)';
+          recBox.className = 'alert-box alert-ok';
+          recBox.innerHTML = `<strong>ผ่านเกณฑ์มาตรฐาน (FR-FORM-02):</strong> ค่า Blended C:N Ratio อยู่ที่ <strong>${metrics.blendedCN.toFixed(1)}:1</strong> อยู่ในช่วงเป้าหมาย 25:1 ถึง 30:1 เหมาะสำหรับการหมักแบบเร่งด่วน 18 วัน`;
+        } else if (metrics.blendedCN < 25) {
+          badge.className = 'badge badge-danger';
+          badge.textContent = 'C:N ต่ำเกินไป (< 25:1 ไนโตรเจนสูง)';
+          recBox.className = 'alert-box alert-danger';
+          recBox.innerHTML = `<strong>แจ้งเตือน FR-FORM-02 (C:N = ${metrics.blendedCN.toFixed(1)}:1 ต่ำกว่า 25:1):</strong> มีสัดส่วนไนโตรเจนมากเกินไป อาจเกิดกลิ่นแอมโมเนียฉุน แนะนำให้เพิ่มวัสดุสีน้ำตาล (Brown Carbon เช่น ใบกล้วยแห้ง หญ้าแห้ง หรือกิ่งไม้สับ)`;
+        } else {
+          badge.className = 'badge badge-warn';
+          badge.textContent = 'C:N สูงเกินไป (> 30:1 คาร์บอนสูง)';
+          recBox.className = 'alert-box alert-warn';
+          recBox.innerHTML = `<strong>แจ้งเตือน FR-FORM-02 (C:N = ${metrics.blendedCN.toFixed(1)}:1 สูงกว่า 30:1):</strong> มีสัดส่วนคาร์บอนสูงเกินไป กองปุ๋ยจะร้อนช้าและย่อยสลายไม่ทัน 18 วัน แนะนำให้เพิ่มวัสดุสีเขียว (Green Waste) หรือตัวเร่ง (Activator เช่น เวย์กรีกโยเกิร์ต หรือกากกาแฟ)`;
+        }
+      }
+
+      document.getElementById('btnAddIngredient').addEventListener('click', function () {
+        const matId = document.getElementById('ingredientSelect').value;
+        const weight = parseFloat(document.getElementById('ingredientWeight').value);
+        if (!matId || isNaN(weight) || weight <= 0) return;
+        const mat = state.materials.find(m => m.id === matId);
+        if (!mat) return;
+
+        const existing = draftIngredients.find(i => i.id === matId);
+        if (existing) {
+          existing.weight += weight;
+        } else {
+          draftIngredients.push({
+            id: mat.id,
+            name: mat.name,
+            category: mat.category,
+            cn: mat.cn,
+            moisture: mat.moisture,
+            weight: weight
+          });
+        }
+        renderDraftRecipe();
+      });
+
+      document.getElementById('recipeIngredientsBody').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-remove-ing]');
+        if (!btn) return;
+        const idx = parseInt(btn.getAttribute('data-remove-ing'), 10);
+        draftIngredients.splice(idx, 1);
+        renderDraftRecipe();
+      });
+
+      // Deterministic SVG QR-like Matrix Generator for Batch ID (FR-FORM-04)
+      function generateQrSvg(text, size = 108) {
+        const grid = 21;
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+
+        function isFinderPattern(r, c) {
+          const inTL = r < 7 && c < 7;
+          const inTR = r < 7 && c >= grid - 7;
+          const inBL = r >= grid - 7 && c < 7;
+          if (!inTL && !inTR && !inBL) return null;
+          const lr = inBL ? r - (grid - 7) : r;
+          const lc = inTR ? c - (grid - 7) : c;
+          if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return true;
+          if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return true;
+          return false;
+        }
+
+        const cellSize = size / grid;
+        let rects = '';
+        for (let r = 0; r < grid; r++) {
+          for (let c = 0; c < grid; c++) {
+            const fp = isFinderPattern(r, c);
+            let dark = false;
+            if (fp !== null) {
+              dark = fp;
+            } else {
+              const seed = Math.imul(hash ^ (r * 31 + c * 17), 1597334677);
+              dark = ((seed >>> 0) % 2) === 0;
+            }
+            if (dark) {
+              rects += `<rect x="${(c * cellSize).toFixed(1)}" y="${(r * cellSize).toFixed(1)}" width="${cellSize.toFixed(1)}" height="${cellSize.toFixed(1)}" fill="#162018"/>`;
+            }
+          }
+        }
+        return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR Code ${escapeHtml(text)}"><rect width="${size}" height="${size}" fill="#ffffff"/>${rects}</svg>`;
+      }
+
+      document.getElementById('batchForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (draftIngredients.length === 0) {
+          const recBox = document.getElementById('formulationRecommendationBox');
+          recBox.className = 'alert-box alert-danger';
+          recBox.textContent = 'กรุณาเพิ่มวัตถุดิบในสูตรอย่างน้อย 1 รายการก่อนบันทึก Batch';
+          return;
+        }
+
+        const batchId = document.getElementById('batchIdInput').value.trim().toUpperCase();
+        const startDate = document.getElementById('batchStartDate').value;
+        const hypothesis = document.getElementById('batchHypothesis').value.trim();
+        const width = parseFloat(document.getElementById('pileWidth').value);
+        const length = parseFloat(document.getElementById('pileLength').value);
+        const height = parseFloat(document.getElementById('pileHeight').value);
+        const cover = document.getElementById('pileCover').value;
+        const metrics = calculateFormulationMetrics(draftIngredients);
+
+        const newBatch = {
+          id: batchId,
+          startDate: startDate,
+          hypothesis: hypothesis,
+          width: width,
+          length: length,
+          height: height,
+          volume: Number((width * length * height).toFixed(2)),
+          cover: cover,
+          ingredients: JSON.parse(JSON.stringify(draftIngredients)),
+          blendedCN: Number(metrics.blendedCN.toFixed(2)),
+          blendedMoisture: Number(metrics.blendedMoisture.toFixed(1)),
+          totalWeight: Number(metrics.totalWeight.toFixed(1)),
+          photo: draftBatchPhoto || '',
+          logs: {}
+        };
+
+        const existIdx = state.batches.findIndex(b => b.id === batchId);
+        if (existIdx > -1) {
+          newBatch.logs = state.batches[existIdx].logs || {};
+          if (!newBatch.photo && state.batches[existIdx].photo) {
+            newBatch.photo = state.batches[existIdx].photo;
+          }
+          state.batches[existIdx] = newBatch;
+          addAuditLog('แก้ไขสูตรปุ๋ย (Update Batch Formulation)', `อัปเดต ${batchId} (Blended C:N ${newBatch.blendedCN}:1, น้ำหนัก ${newBatch.totalWeight} kg)`);
+        } else {
+          state.batches.unshift(newBatch);
+          addAuditLog('สร้างกองปุ๋ยใหม่ (Create Compost Batch)', `สร้าง ${batchId} (Blended C:N ${newBatch.blendedCN}:1, น้ำหนัก ${newBatch.totalWeight} kg)`);
+        }
+
+        selectedMonitorBatchId = batchId;
+        draftIngredients = [];
+        draftBatchPhoto = '';
+        document.getElementById('batchPhotoInput').value = '';
+        document.getElementById('batchPhotoPreview').style.display = 'none';
+        document.getElementById('btnClearBatchPhoto').style.display = 'none';
+        document.getElementById('batchHypothesis').value = '';
+        initFormulationDefaults();
+        renderDraftRecipe();
+        renderBatchList();
+        syncBatchDropdowns();
+      });
+
+      function renderBatchList() {
+        const container = document.getElementById('batchListContainer');
+        if (state.batches.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <strong>ยังไม่มีกองปุ๋ยหมักในระบบ</strong>
+              <p>สร้างสูตรปุ๋ยหมักทางด้านซ้ายเพื่อออกรหัส Compost Batch ID และ QR Code สำหรับติดตามการหมัก 18 วัน</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = state.batches.map(b => {
+          const inTarget = b.blendedCN >= 25 && b.blendedCN <= 30;
+          const badgeClass = inTarget ? 'badge-green' : 'badge-warn';
+          const loggedDaysCount = Object.keys(b.logs || {}).length;
+          const photoHtml = b.photo
+            ? `<img src="${b.photo}" class="photo-thumb" alt="รูปกองปุ๋ย ${escapeHtml(b.id)}" data-view-photo="${b.photo}" data-photo-title="กองปุ๋ย ${escapeHtml(b.id)} (Day 1)">`
+            : '';
+          return `
+            <div style="border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-4); margin-bottom:var(--space-3); display:flex; flex-wrap:wrap; gap:var(--space-4); align-items:center; justify-content:space-between;">
+              <div style="flex:1; min-width:220px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                  ${photoHtml}
+                  <div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <strong style="font-size:16px;">${escapeHtml(b.id)}</strong>
+                      <span class="badge ${badgeClass}">C:N ${b.blendedCN}:1</span>
+                      <span class="badge badge-activator">ความชื้น ${b.blendedMoisture}%</span>
+                    </div>
+                    <div style="font-size:13px; color:var(--ink); margin-top:4px;"><strong>สมมติฐาน:</strong> ${escapeHtml(b.hypothesis)}</div>
+                  </div>
+                </div>
+                <div style="font-size:12px; color:var(--muted);">
+                  เริ่มวันที่: ${escapeHtml(b.startDate)} | ขนาด: ${b.width}×${b.length}×${b.height}m (${b.volume} m³) | น้ำหนักรวม: ${b.totalWeight} kg | บันทึกแล้ว: ${loggedDaysCount}/18 วัน
+                </div>
+                <div style="margin-top:8px;">
+                  <button type="button" class="btn btn-primary btn-sm" data-goto-monitor="${escapeHtml(b.id)}">ไปที่หน้าบันทึกผล 18 วัน</button>
+                </div>
+              </div>
+              <div class="qr-container">
+                ${generateQrSvg(b.id, 88)}
+                <div style="font-size:11px; font-weight:700; margin-top:4px;">${escapeHtml(b.id)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('batchListContainer').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-goto-monitor]');
+        if (!btn) return;
+        selectedMonitorBatchId = btn.getAttribute('data-goto-monitor');
+        switchTab('mod-monitoring');
+      });
+
+      function syncBatchDropdowns() {
+        const monitorSel = document.getElementById('monitorBatchSelect');
+        const labSel = document.getElementById('labBatchSelect');
+        const bioSel = document.getElementById('bioBatchSelect');
+
+        if (state.batches.length === 0) {
+          const emptyOpt = '<option value="">-- ยังไม่มีข้อมูลกองปุ๋ย (กรุณาสร้างที่ Module 2) --</option>';
+          monitorSel.innerHTML = emptyOpt;
+          labSel.innerHTML = emptyOpt;
+          bioSel.innerHTML = emptyOpt;
+          return;
+        }
+
+        if (!selectedMonitorBatchId || !state.batches.some(b => b.id === selectedMonitorBatchId)) {
+          selectedMonitorBatchId = state.batches[0].id;
+        }
+
+        const opts = state.batches.map(b =>
+          `<option value="${escapeHtml(b.id)}" ${b.id === selectedMonitorBatchId ? 'selected' : ''}>${escapeHtml(b.id)} — C:N ${b.blendedCN}:1 (${escapeHtml(b.hypothesis)})</option>`
+        ).join('');
+
+        monitorSel.innerHTML = opts;
+        labSel.innerHTML = opts;
+        bioSel.innerHTML = opts;
+      }
+
+      // =========================================================================
+      // 6. MODULE 3: IN-PROCESS MONITORING & TROUBLESHOOTING (FR-PROC-01 to 03)
+      // =========================================================================
+      document.getElementById('monitorBatchSelect').addEventListener('change', function (e) {
+        selectedMonitorBatchId = e.target.value;
+        renderMonitoringModule();
+      });
+
+      document.getElementById('btnQrSearch').addEventListener('click', function () {
+        const q = document.getElementById('qrLookupInput').value.trim().toUpperCase();
+        if (!q) return;
+        const found = state.batches.find(b => b.id.toUpperCase() === q);
+        if (found) {
+          selectedMonitorBatchId = found.id;
+          document.getElementById('monitorBatchSelect').value = found.id;
+          renderMonitoringModule();
+        }
+      });
+
+      // Troubleshooting Engine (FR-PROC-03)
+      function evaluateTroubleshooting(batch, dayNum, coreTemp, moisture, odor) {
+        const alerts = [];
+        const prevDayLog = batch.logs ? batch.logs[dayNum - 1] : null;
+
+        // Condition 1: Temp > 65°C for 2 consecutive days (or current day > 65°C warning)
+        if (coreTemp > 65) {
+          if (prevDayLog && Number(prevDayLog.coreTemp) > 65) {
+            alerts.push({
+              level: 'danger',
+              title: 'อุณหภูมิสูงเกิน 65°C ติดต่อกัน 2 วัน (Overheating Alert)',
+              advice: 'แนะนำ: เจาะรูระบายอากาศแนวตั้ง (Vertical Vent Holes) และกลับกองเพื่อระบายความร้อน ป้องกันจุลินทรีย์ที่มีประโยชน์ตาย'
+            });
+          } else {
+            alerts.push({
+              level: 'warn',
+              title: 'อุณหภูมิแกนกลางสูงเกิน 65°C',
+              advice: 'แนะนำ: เฝ้าระวังใกล้ชิด หากอุณหภูมิ > 65°C ติดต่อกัน 2 วัน ต้องเจาะรูระบายอากาศแนวตั้ง (Vertical Vent Holes)'
+            });
+          }
+        }
+
+        // Condition 2: Temp not rising / not hot (e.g., Day >= 4 and coreTemp < 45°C)
+        if (dayNum >= 4 && dayNum <= 14 && coreTemp < 45) {
+          alerts.push({
+            level: 'warn',
+            title: 'อุณหภูมิไม่สูงขึ้น / กองปุ๋ยไม่ร้อน (Low Temperature)',
+            advice: 'แนะนำ: เพิ่มวัตถุดิบไนโตรเจน (มูลสัตว์/ปัสสาวะ/เวย์) หรือขยายขนาดกองปุ๋ยให้ได้ปริมาตร ≥ 1 m³'
+          });
+        }
+
+        // Condition 3: Anaerobic foul odor
+        if (odor === 'Anaerobic') {
+          alerts.push({
+            level: 'danger',
+            title: 'ตรวจพบกลิ่นเหม็นเน่าอับอากาศ (Anaerobic Condition)',
+            advice: 'แนะนำ: เพิ่มวัสดุคาร์บอนสีน้ำตาล (Brown Carbon) และกลับกองระบายอากาศทันที'
+          });
+        }
+
+        // Condition 4: Squeeze Test Result
+        if (moisture === 'Too Dry') {
+          alerts.push({
+            level: 'warn',
+            title: 'ความชื้นต่ำเกินไป (Squeeze Test: Too Dry)',
+            advice: 'แนะนำ: เติมน้ำเป็นละอองฝอยระหว่างการกลับกองจนบีบแล้วมีน้ำซึม 1–2 หยด'
+          });
+        } else if (moisture === 'Water Streaming Too Wet') {
+          alerts.push({
+            level: 'warn',
+            title: 'ความชื้นสูงเกินไป (Squeeze Test: Water Streaming Too Wet)',
+            advice: 'แนะนำ: เติมวัสดุแห้งดูดซับความชื้น (Brown Carbon เช่น ใบไม้แห้ง/หญ้าแห้ง) และกลับกองผึ่งลม'
+          });
+        }
+
+        if (alerts.length === 0) {
+          alerts.push({
+            level: 'ok',
+            title: 'สภาวะกองปุ๋ยปกติ (Normal In-Process Status)',
+            advice: 'อุณหภูมิ ความชื้น และกลิ่นอยู่ในเกณฑ์เหมาะสม ดำเนินการตามตาราง 18 วันต่อไป'
+          });
+        }
+        return alerts;
+      }
+
+      function renderMonitoringModule() {
+        syncBatchDropdowns();
+        const workspace = document.getElementById('monitoringWorkspace');
+
+        if (state.batches.length === 0) {
+          workspace.innerHTML = `
+            <div class="card">
+              <div class="empty-state">
+                <strong>ยังไม่มีกองปุ๋ยสำหรับบันทึกผลหน้างาน</strong>
+                <p>กรุณาไปที่แท็บ "2. คำนวณสูตร &amp; สร้างกองปุ๋ย" เพื่อเปิด Batch การทดลองก่อน</p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const batch = state.batches.find(b => b.id === selectedMonitorBatchId) || state.batches[0];
+        const currentLog = (batch.logs && batch.logs[selectedMonitorDay]) || null;
+
+        if (currentLog) {
+          selectedMoistureChoice = currentLog.moisture;
+          selectedOdorChoice = currentLog.odor || 'Normal';
+          selectedTurnedChoice = currentLog.turned ? 'Yes' : 'No';
+          draftLogPhoto = currentLog.photo || '';
+        } else {
+          draftLogPhoto = '';
+        }
+
+        // Build 18-day automated task calendar (FR-PROC-01)
+        let calendarHtml = '';
+        for (let d = 1; d <= 18; d++) {
+          const sched = DAY_SCHEDULE[d];
+          const log = batch.logs ? batch.logs[d] : null;
+          const isAct = d === selectedMonitorDay;
+          const turnBadge = sched.turnRequired
+            ? '<span class="badge badge-brown" style="font-size:10px; padding:2px 6px;">กลับกอง</span>'
+            : '<span class="badge badge-green" style="font-size:10px; padding:2px 6px;">คุมผ้าใบ</span>';
+
+          const phStr = (log && log.ph !== null && log.ph !== undefined && log.ph !== '') ? ` | pH ${log.ph}` : '';
+          calendarHtml += `
+            <div class="day-cell ${isAct ? 'active-day' : ''} ${log ? 'logged' : ''}" data-select-day="${d}">
+              <div class="day-num">
+                <span>Day ${d}</span>
+                ${turnBadge}
+              </div>
+              <div class="day-task">${escapeHtml(sched.phase)}</div>
+              ${log ? `<div style="margin-top:6px; font-size:12px; font-weight:700; color:var(--brand);">แกน: ${log.coreTemp}°C${phStr}</div>` : '<div style="margin-top:6px; font-size:11px; color:var(--muted);">ยังไม่บันทึก</div>'}
+            </div>
+          `;
+        }
+
+        const activeSched = DAY_SCHEDULE[selectedMonitorDay];
+        const defaultCore = currentLog ? currentLog.coreTemp : (selectedMonitorDay >= 6 && selectedMonitorDay <= 12 ? 58 : 45);
+        const defaultOuter = currentLog ? currentLog.outerTemp : (defaultCore - 8);
+        const defaultPh = (currentLog && currentLog.ph !== null && currentLog.ph !== undefined) ? currentLog.ph : '';
+        const defaultSensorMoist = (currentLog && currentLog.sensorMoisture !== null && currentLog.sensorMoisture !== undefined) ? currentLog.sensorMoisture : '';
+
+        const diagAlerts = currentLog
+          ? evaluateTroubleshooting(batch, selectedMonitorDay, Number(currentLog.coreTemp), currentLog.moisture, currentLog.odor)
+          : [];
+
+        workspace.innerHTML = `
+          <!-- 18-Day Task Calendar -->
+          <div class="card">
+            <div class="card-title">
+              <span>ตารางการทำงานอัตโนมัติ 18 วัน (Automated Task Calendar - FR-PROC-01) — กองปุ๋ย ${escapeHtml(batch.id)}</span>
+              <span class="badge badge-green">คลิกเลือกวันที่ต้องการบันทึก (Day 1 – Day 18)</span>
+            </div>
+            <div class="calendar-grid">${calendarHtml}</div>
+          </div>
+
+          <div class="grid-2">
+            <!-- Touch-Friendly Daily Recording Form (FR-PROC-02 & NFR 4.2) -->
+            <div class="card">
+              <div class="card-title">
+                <span>บันทึกผลหน้ากองปุ๋ย: Day ${selectedMonitorDay} — ${escapeHtml(activeSched.phase)}</span>
+              </div>
+
+              <!-- IoT MQTT Parallel Bar -->
+              <div class="iot-bar">
+                <div>
+                  <strong>📡 อุปกรณ์วัดค่า IoT (MQTT Protocol):</strong>
+                  <span style="color:var(--muted);">ดึงค่าจากหัววัดเข้าช่องอัตโนมัติ หรือกรอกเองด้วยมือ</span>
+                </div>
+                <button type="button" class="btn-iot" id="btnIotPullDailyAll">⚡ ดึงค่า MQTT ทั้งหมด (Temp + ความชื้น + pH)</button>
+              </div>
+
+              <form id="dailyLogForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                      <label class="form-label" for="logCoreTemp">อุณหภูมิแกนกลาง Core (°C) *</label>
+                      <button type="button" class="btn-iot" id="btnIotCoreTemp" title="ดึงค่าจาก MQTT Topic: compost/iot/temp/core">🌡️ MQTT</button>
+                    </div>
+                    <input type="number" id="logCoreTemp" class="form-control form-control-touch" step="0.5" min="10" max="90" value="${defaultCore}" required>
+                  </div>
+                  <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                      <label class="form-label" for="logOuterTemp">อุณหภูมิขอบนอก Outer (°C) *</label>
+                      <button type="button" class="btn-iot" id="btnIotOuterTemp" title="ดึงค่าจาก MQTT Topic: compost/iot/temp/outer">🌡️ MQTT</button>
+                    </div>
+                    <input type="number" id="logOuterTemp" class="form-control form-control-touch" step="0.5" min="10" max="90" value="${defaultOuter}" required>
+                  </div>
+                  <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                      <label class="form-label" for="logSensorMoisture">ความชื้นเซนเซอร์ (%) <span class="optional-tag">ไม่บังคับ</span></label>
+                      <button type="button" class="btn-iot" id="btnIotDailyMoist" title="ดึงค่าความชื้นจาก MQTT Topic: compost/iot/moisture">💧 MQTT</button>
+                    </div>
+                    <input type="number" id="logSensorMoisture" class="form-control form-control-touch" step="0.1" min="0" max="100" value="${defaultSensorMoist}" placeholder="เว้นว่างได้หากบีบมือ">
+                  </div>
+                  <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                      <label class="form-label" for="logPh">ค่า pH <span class="optional-tag">ไม่บังคับ</span></label>
+                      <button type="button" class="btn-iot" id="btnIotPh" title="ดึงค่า pH จาก MQTT Topic: compost/iot/ph">🧪 MQTT</button>
+                    </div>
+                    <input type="number" id="logPh" class="form-control form-control-touch" step="0.1" min="3" max="11" value="${defaultPh}" placeholder="เว้นว่างได้หากไม่มีเครื่องวัด">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--space-4);">
+                  <label class="form-label">ผลทดสอบความชื้นด้วยการบีบมือ (Squeeze Test Result - FR-PROC-02) *</label>
+                  <div class="touch-choice-group" id="moistureChoices">
+                    <button type="button" class="touch-choice ${selectedMoistureChoice === 'Too Dry' ? 'selected' : ''}" data-moist="Too Dry">Too Dry (แห้งเกินไป)</button>
+                    <button type="button" class="touch-choice ${selectedMoistureChoice === '1-2 Drops Ideal' ? 'selected' : ''}" data-moist="1-2 Drops Ideal">1-2 Drops Ideal (เหมาะสม)</button>
+                    <button type="button" class="touch-choice ${selectedMoistureChoice === 'Water Streaming Too Wet' ? 'selected' : ''}" data-moist="Water Streaming Too Wet">Water Streaming Too Wet (แฉะเกินไป)</button>
+                  </div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">สถานะกลิ่นกองปุ๋ย (Odor Check - FR-PROC-03)</label>
+                    <div class="touch-choice-group" id="odorChoices">
+                      <button type="button" class="touch-choice ${selectedOdorChoice === 'Normal' ? 'selected' : ''}" data-odor="Normal">กลิ่นดิน/ปกติ (Normal)</button>
+                      <button type="button" class="touch-choice ${selectedOdorChoice === 'Anaerobic' ? 'selected' : ''}" data-odor="Anaerobic">กลิ่นเหม็นเน่า (Anaerobic)</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">การกลับกองปุ๋ยวันนี้ (Turning Action)</label>
+                    <div class="touch-choice-group" id="turnChoices">
+                      <button type="button" class="touch-choice ${selectedTurnedChoice === 'Yes' ? 'selected' : ''}" data-turn="Yes">กลับกองแล้ว (Turned)</button>
+                      <button type="button" class="touch-choice ${selectedTurnedChoice === 'No' ? 'selected' : ''}" data-turn="No">ไม่ได้กลับกอง</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--space-4);">
+                  <label class="form-label" for="logPhotoInput">📷 ถ่ายรูปสภาพกองปุ๋ยประจำวัน (Day ${selectedMonitorDay} Field Photo)</label>
+                  <div class="photo-upload-box">
+                    <img id="logPhotoPreview" class="photo-thumb" src="${draftLogPhoto}" alt="รูปกองปุ๋ยประจำวัน" style="display:${draftLogPhoto ? 'block' : 'none'};">
+                    <div style="flex:1; min-width:180px;">
+                      <input type="file" id="logPhotoInput" class="form-control" accept="image/*" capture="environment">
+                      <div style="font-size:11px; color:var(--muted); margin-top:4px;">ถ่ายภาพสีเนื้อปุ๋ย ไอน้ำ หรือการกลับกองใน Day ${selectedMonitorDay}</div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnClearLogPhoto" style="display:${draftLogPhoto ? 'inline-flex' : 'none'};">ลบรูป</button>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-touch" style="width:100%; margin-top:var(--space-2);">
+                  บันทึกค่าประจำวัน (Save Day ${selectedMonitorDay} Log)
+                </button>
+              </form>
+            </div>
+
+            <!-- Right: Troubleshooting Workflow Engine & Logged History -->
+            <div>
+              <div class="card">
+                <div class="card-title">
+                  <span>ระบบวินิจฉัยและแนะนำการแก้ปัญหา (Troubleshooting Engine - FR-PROC-03)</span>
+                </div>
+                <div id="troubleshootingOutput">
+                  ${diagAlerts.length > 0 ? diagAlerts.map(a => `
+                    <div class="alert-box alert-${a.level}">
+                      <div style="font-weight:700; margin-bottom:4px;">${escapeHtml(a.title)}</div>
+                      <div>${escapeHtml(a.advice)}</div>
+                    </div>
+                  `).join('') : `
+                    <div class="empty-state" style="padding:20px;">
+                      ยังไม่ได้บันทึกข้อมูลของ Day ${selectedMonitorDay} กรุณากรอกอุณหภูมิและผล Squeeze Test ด้านซ้ายเพื่อรับคำแนะนำจากระบบวินิจฉัยอัตโนมัติ
+                    </div>
+                  `}
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">
+                  <span>ประวัติบันทึกประจำวันของกองปุ๋ย ${escapeHtml(batch.id)}</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Day</th>
+                        <th>รูปภาพ</th>
+                        <th class="num">แกนกลาง (°C)</th>
+                        <th class="num">ขอบนอก (°C)</th>
+                        <th class="num">pH</th>
+                        <th>ความชื้น / Squeeze</th>
+                        <th>การกลับกอง</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${Object.keys(batch.logs || {}).length === 0 ? `
+                        <tr><td colspan="7"><div class="empty-state" style="padding:16px;">ยังไม่มีประวัติการบันทึกรายวันใน Batch นี้</div></td></tr>
+                      ` : Object.keys(batch.logs).sort((a, b) => Number(a) - Number(b)).map(d => {
+                        const l = batch.logs[d];
+                        const pImg = l.photo
+                          ? `<img src="${l.photo}" class="photo-thumb-sm" alt="Day ${d}" data-view-photo="${l.photo}" data-photo-title="${escapeHtml(batch.id)} - Day ${d}">`
+                          : '<span style="font-size:11px; color:var(--muted);">-</span>';
+                        const phCell = (l.ph !== null && l.ph !== undefined && l.ph !== '') ? l.ph : '-';
+                        const moistSensorStr = (l.sensorMoisture !== null && l.sensorMoisture !== undefined && l.sensorMoisture !== '') ? ` (${l.sensorMoisture}%)` : '';
+                        return `
+                          <tr>
+                            <td><strong>Day ${d}</strong></td>
+                            <td>${pImg}</td>
+                            <td class="num"><strong>${l.coreTemp}°C</strong></td>
+                            <td class="num">${l.outerTemp}°C</td>
+                            <td class="num">${phCell}</td>
+                            <td>${escapeHtml(l.moisture)}${moistSensorStr}</td>
+                            <td>${l.turned ? 'กลับกองแล้ว' : '-'}</td>
+                          </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Bind photo uploader inside dynamic monitoringWorkspace
+        bindPhotoUploader('logPhotoInput', 'logPhotoPreview', 'btnClearLogPhoto', val => { draftLogPhoto = val; });
+
+        // Bind IoT MQTT buttons inside dynamic monitoringWorkspace
+        function syncSqueezeFromSensorMoisture(moistVal) {
+          if (moistVal < 45) selectedMoistureChoice = 'Too Dry';
+          else if (moistVal > 68) selectedMoistureChoice = 'Water Streaming Too Wet';
+          else selectedMoistureChoice = '1-2 Drops Ideal';
+          workspace.querySelectorAll('[data-moist]').forEach(b => {
+            b.classList.toggle('selected', b.getAttribute('data-moist') === selectedMoistureChoice);
+          });
+        }
+
+        const btnPullAll = document.getElementById('btnIotPullDailyAll');
+        if (btnPullAll) {
+          btnPullAll.addEventListener('click', function () {
+            document.getElementById('logCoreTemp').value = mqttTelemetry.coreTemp;
+            document.getElementById('logOuterTemp').value = mqttTelemetry.outerTemp;
+            document.getElementById('logSensorMoisture').value = mqttTelemetry.moisture;
+            document.getElementById('logPh').value = mqttTelemetry.ph;
+            syncSqueezeFromSensorMoisture(mqttTelemetry.moisture);
+          });
+        }
+        const btnCore = document.getElementById('btnIotCoreTemp');
+        if (btnCore) btnCore.addEventListener('click', () => { document.getElementById('logCoreTemp').value = mqttTelemetry.coreTemp; });
+        const btnOuter = document.getElementById('btnIotOuterTemp');
+        if (btnOuter) btnOuter.addEventListener('click', () => { document.getElementById('logOuterTemp').value = mqttTelemetry.outerTemp; });
+        const btnMoist = document.getElementById('btnIotDailyMoist');
+        if (btnMoist) {
+          btnMoist.addEventListener('click', () => {
+            document.getElementById('logSensorMoisture').value = mqttTelemetry.moisture;
+            syncSqueezeFromSensorMoisture(mqttTelemetry.moisture);
+          });
+        }
+        const btnPh = document.getElementById('btnIotPh');
+        if (btnPh) btnPh.addEventListener('click', () => { document.getElementById('logPh').value = mqttTelemetry.ph; });
+
+        // Bind events inside monitoringWorkspace
+        workspace.querySelectorAll('[data-select-day]').forEach(cell => {
+          cell.addEventListener('click', () => {
+            selectedMonitorDay = parseInt(cell.getAttribute('data-select-day'), 10);
+            renderMonitoringModule();
+          });
+        });
+
+        workspace.querySelectorAll('[data-moist]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selectedMoistureChoice = btn.getAttribute('data-moist');
+            workspace.querySelectorAll('[data-moist]').forEach(b => b.classList.toggle('selected', b === btn));
+          });
+        });
+
+        workspace.querySelectorAll('[data-odor]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selectedOdorChoice = btn.getAttribute('data-odor');
+            workspace.querySelectorAll('[data-odor]').forEach(b => b.classList.toggle('selected', b === btn));
+          });
+        });
+
+        workspace.querySelectorAll('[data-turn]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selectedTurnedChoice = btn.getAttribute('data-turn');
+            workspace.querySelectorAll('[data-turn]').forEach(b => b.classList.toggle('selected', b === btn));
+          });
+        });
+
+        const logForm = document.getElementById('dailyLogForm');
+        if (logForm) {
+          logForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const coreTemp = parseFloat(document.getElementById('logCoreTemp').value);
+            const outerTemp = parseFloat(document.getElementById('logOuterTemp').value);
+            const phRaw = document.getElementById('logPh').value.trim();
+            const moistRaw = document.getElementById('logSensorMoisture').value.trim();
+            const ph = phRaw !== '' ? parseFloat(phRaw) : null;
+            const sensorMoisture = moistRaw !== '' ? parseFloat(moistRaw) : null;
+
+            if (!batch.logs) batch.logs = {};
+            const isUpdate = Boolean(batch.logs[selectedMonitorDay]);
+            batch.logs[selectedMonitorDay] = {
+              day: selectedMonitorDay,
+              coreTemp: coreTemp,
+              outerTemp: outerTemp,
+              sensorMoisture: sensorMoisture,
+              ph: ph,
+              moisture: selectedMoistureChoice,
+              odor: selectedOdorChoice,
+              turned: selectedTurnedChoice === 'Yes',
+              photo: draftLogPhoto || '',
+              updatedAt: new Date().toLocaleString('th-TH')
+            };
+
+            addAuditLog(
+              isUpdate ? 'แก้ไขค่าอุณหภูมิรายวัน (Update Daily Log)' : 'บันทึกค่าประจำวัน (Add Daily Log)',
+              `${batch.id} Day ${selectedMonitorDay}: Core ${coreTemp}°C, Outer ${outerTemp}°C, pH ${ph ?? 'ไม่ระบุ'}, ${selectedMoistureChoice}`
+            );
+
+            renderMonitoringModule();
+            renderBatchList();
+          });
+        }
+      }
+
+      // =========================================================================
+      // 7. MODULE 4: FINAL QUALITY & CROP BIOASSAY (FR-TEST-01, FR-TEST-02)
+      // =========================================================================
+      function fmtOptVal(val, suffix = '') {
+        if (val === null || val === undefined || val === '' || Number.isNaN(val)) return '-';
+        return `${val}${suffix}`;
+      }
+
+      function renderBioassayModule() {
+        syncBatchDropdowns();
+        const bioIdInput = document.getElementById('bioTestId');
+        if (!bioIdInput.value) {
+          bioIdInput.value = `BIO-${new Date().getFullYear()}-${String(state.bioassays.length + 1).padStart(3, '0')}`;
+        }
+
+        // Render Lab Results Table
+        const labWrap = document.getElementById('labResultsTableWrap');
+        if (state.labResults.length === 0) {
+          labWrap.innerHTML = '<div class="empty-state" style="padding:18px;">ยังไม่มีผลวิเคราะห์คุณภาพปุ๋ยหลัง Day 18</div>';
+        } else {
+          labWrap.innerHTML = `
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>รูปปุ๋ย</th>
+                    <th class="num">N (%)</th>
+                    <th class="num">P (%)</th>
+                    <th class="num">K (%)</th>
+                    <th class="num">OM (%)</th>
+                    <th class="num">Final C:N</th>
+                    <th class="num">EC (dS/m)</th>
+                    <th>ลักษณะกายภาพ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${state.labResults.map(r => {
+                    const pImg = r.photo
+                      ? `<img src="${r.photo}" class="photo-thumb-sm" alt="${escapeHtml(r.batchId)}" data-view-photo="${r.photo}" data-photo-title="เนื้อปุ๋ยหมัก ${escapeHtml(r.batchId)}">`
+                      : '<span style="font-size:11px; color:var(--muted);">-</span>';
+                    return `
+                      <tr>
+                        <td><strong>${escapeHtml(r.batchId)}</strong></td>
+                        <td>${pImg}</td>
+                        <td class="num">${fmtOptVal(r.n, '%')}</td>
+                        <td class="num">${fmtOptVal(r.p, '%')}</td>
+                        <td class="num">${fmtOptVal(r.k, '%')}</td>
+                        <td class="num">${fmtOptVal(r.om, '%')}</td>
+                        <td class="num"><strong>${fmtOptVal(r.finalCN, ':1')}</strong></td>
+                        <td class="num">${fmtOptVal(r.ec)}</td>
+                        <td>${escapeHtml(r.physicalNote || '-')}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        // Render Bioassay Table
+        const bioWrap = document.getElementById('bioassayTableWrap');
+        if (state.bioassays.length === 0) {
+          bioWrap.innerHTML = '<div class="empty-state" style="padding:18px;">ยังไม่มีผลการทดลองปลูกพืช (Crop Bioassay)</div>';
+        } else {
+          bioWrap.innerHTML = `
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Plant Test ID</th>
+                    <th>รูปพืช</th>
+                    <th>Batch ID</th>
+                    <th>ชนิดพืช</th>
+                    <th class="num">ระยะเวลา</th>
+                    <th class="num">ความสูง (cm)</th>
+                    <th class="num">จำนวนใบ</th>
+                    <th class="num">น้ำหนักสด/แห้ง (g)</th>
+                    <th class="num">รอดชีวิต (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${state.bioassays.map(b => {
+                    const pImg = b.photo
+                      ? `<img src="${b.photo}" class="photo-thumb-sm" alt="${escapeHtml(b.testId)}" data-view-photo="${b.photo}" data-photo-title="ผลการปลูกพืช ${escapeHtml(b.testId)} (${escapeHtml(b.cropType)})">`
+                      : '<span style="font-size:11px; color:var(--muted);">-</span>';
+                    return `
+                      <tr>
+                        <td><strong>${escapeHtml(b.testId)}</strong></td>
+                        <td>${pImg}</td>
+                        <td>${escapeHtml(b.batchId)}</td>
+                        <td>${escapeHtml(b.cropType)}</td>
+                        <td class="num">${b.periodDays} วัน</td>
+                        <td class="num"><strong>${b.height} cm</strong></td>
+                        <td class="num">${b.leaves}</td>
+                        <td class="num">${b.freshWeight} / ${fmtOptVal(b.dryWeight)} g</td>
+                        <td class="num">${b.survival}%</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+      }
+
+      document.getElementById('labResultForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const batchId = document.getElementById('labBatchSelect').value;
+        if (!batchId) return;
+
+        function parseOptFloat(id) {
+          const v = document.getElementById(id).value.trim();
+          return v !== '' ? parseFloat(v) : null;
+        }
+
+        const entry = {
+          batchId: batchId,
+          n: parseOptFloat('labN'),
+          p: parseOptFloat('labP'),
+          k: parseOptFloat('labK'),
+          om: parseOptFloat('labOM'),
+          finalCN: parseOptFloat('labFinalCN'),
+          ec: parseOptFloat('labEC'),
+          physicalNote: document.getElementById('labPhysicalNote').value.trim(),
+          photo: draftLabPhoto || '',
+          updatedAt: new Date().toLocaleString('th-TH')
+        };
+
+        const idx = state.labResults.findIndex(x => x.batchId === batchId);
+        if (idx > -1) state.labResults[idx] = entry;
+        else state.labResults.unshift(entry);
+
+        addAuditLog(
+          'บันทึกผลแล็บปุ๋ยหมัก (Save Lab Quality)',
+          `${batchId}: NPK ${fmtOptVal(entry.n)}-${fmtOptVal(entry.p)}-${fmtOptVal(entry.k)}%, OM ${fmtOptVal(entry.om, '%')}, Final C:N ${fmtOptVal(entry.finalCN, ':1')}`
+        );
+        document.getElementById('labResultForm').reset();
+        draftLabPhoto = '';
+        document.getElementById('labPhotoPreview').style.display = 'none';
+        document.getElementById('btnClearLabPhoto').style.display = 'none';
+        renderBioassayModule();
+      });
+
+      document.getElementById('bioassayForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const batchId = document.getElementById('bioBatchSelect').value;
+        if (!batchId) return;
+        const dryRaw = document.getElementById('bioDryWeight').value.trim();
+        const entry = {
+          testId: document.getElementById('bioTestId').value.trim().toUpperCase(),
+          batchId: batchId,
+          cropType: document.getElementById('bioCropType').value.trim(),
+          periodDays: parseInt(document.getElementById('bioPeriodDays').value, 10),
+          height: parseFloat(document.getElementById('bioHeight').value),
+          leaves: parseInt(document.getElementById('bioLeaves').value, 10),
+          freshWeight: parseFloat(document.getElementById('bioFreshWeight').value),
+          dryWeight: dryRaw !== '' ? parseFloat(dryRaw) : null,
+          survival: parseFloat(document.getElementById('bioSurvival').value),
+          photo: draftBioPhoto || ''
+        };
+
+        const idx = state.bioassays.findIndex(x => x.testId === entry.testId);
+        if (idx > -1) state.bioassays[idx] = entry;
+        else state.bioassays.unshift(entry);
+
+        addAuditLog('บันทึกผลปลูกพืช (Save Crop Bioassay)', `${entry.testId} (${batchId} - ${entry.cropType} ${entry.periodDays} วัน): สูง ${entry.height} cm`);
+        document.getElementById('bioassayForm').reset();
+        draftBioPhoto = '';
+        document.getElementById('bioPhotoPreview').style.display = 'none';
+        document.getElementById('btnClearBioPhoto').style.display = 'none';
+        document.getElementById('bioTestId').value = `BIO-${new Date().getFullYear()}-${String(state.bioassays.length + 1).padStart(3, '0')}`;
+        renderBioassayModule();
+      });
+
+      // =========================================================================
+      // 8. MODULE 5: ANALYTICS & HYPOTHESIS TESTING (FR-ANA-01 to FR-ANA-03)
+      // =========================================================================
+      const SERIES_COLORS = ['#166534', '#0284c7', '#d97706', '#7c3aed', '#dc2626', '#0d9488'];
+
+      function renderAnalyticsModule() {
+        renderTemperatureComparisonChart();
+        renderCNvsGrowthComparison();
+      }
+
+      function renderTemperatureComparisonChart() {
+        const container = document.getElementById('tempChartContainer');
+        const batchesWithLogs = state.batches.filter(b => b.logs && Object.keys(b.logs).length > 0);
+
+        if (batchesWithLogs.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="height:100%; display:flex; flex-direction:column; justify-content:center;">
+              <strong>ยังไม่มีข้อมูลอุณหภูมิรายวันสำหรับสร้างกราฟเปรียบเทียบ (FR-ANA-01)</strong>
+              <p>เมื่อบันทึกอุณหภูมิแกนกลางใน Module 3 แล้ว กราฟเส้นเปรียบเทียบอุณหภูมิตลอด 18 วันจะแสดงที่นี่โดยอัตโนมัติ</p>
+            </div>
+          `;
+          return;
+        }
+
+        const width = 900;
+        const height = 260;
+        const padL = 48;
+        const padR = 24;
+        const padT = 20;
+        const padB = 34;
+        const plotW = width - padL - padR;
+        const plotH = height - padT - padB;
+        const minTemp = 20;
+        const maxTemp = 80;
+
+        function xPos(day) {
+          return padL + ((day - 1) / 17) * plotW;
+        }
+        function yPos(temp) {
+          const clamped = Math.max(minTemp, Math.min(maxTemp, temp));
+          return padT + plotH - ((clamped - minTemp) / (maxTemp - minTemp)) * plotH;
+        }
+
+        // Target zone 55-65°C band
+        const y65 = yPos(65);
+        const y55 = yPos(55);
+
+        let gridLines = '';
+        for (let t = 20; t <= 80; t += 15) {
+          const y = yPos(t);
+          gridLines += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="#e5ebe5" stroke-width="1"/>`;
+          gridLines += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#526356">${t}°C</text>`;
+        }
+
+        let xLabels = '';
+        for (let d = 1; d <= 18; d++) {
+          const x = xPos(d);
+          xLabels += `<text x="${x}" y="${height - 10}" text-anchor="middle" font-size="11" fill="#526356">D${d}</text>`;
+        }
+
+        let paths = '';
+        let legendHtml = '';
+
+        batchesWithLogs.forEach((b, idx) => {
+          const color = SERIES_COLORS[idx % SERIES_COLORS.length];
+          const days = Object.keys(b.logs).map(Number).sort((a, z) => a - z);
+          const pts = days.map(d => `${xPos(d).toFixed(1)},${yPos(b.logs[d].coreTemp).toFixed(1)}`).join(' ');
+          paths += `<polyline fill="none" stroke="${color}" stroke-width="3" points="${pts}"/>`;
+          days.forEach(d => {
+            const cx = xPos(d).toFixed(1);
+            const cy = yPos(b.logs[d].coreTemp).toFixed(1);
+            paths += `<circle cx="${cx}" cy="${cy}" r="4" fill="${color}"><title>${escapeHtml(b.id)} Day ${d}: ${b.logs[d].coreTemp}°C</title></circle>`;
+          });
+          legendHtml += `<span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; margin-right:16px;"><span style="width:12px; height:12px; border-radius:3px; background:${color}; display:inline-block;"></span>${escapeHtml(b.id)} (C:N ${b.blendedCN}:1)</span>`;
+        });
+
+        container.innerHTML = `
+          <div style="margin-bottom:6px;">${legendHtml}</div>
+          <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:245px; display:block;">
+            <rect x="${padL}" y="${y65}" width="${plotW}" height="${y55 - y65}" fill="#dcfce7" opacity="0.65"/>
+            <text x="${padL + 8}" y="${y65 + 14}" font-size="10" fill="#166534" font-weight="700">ช่วงความร้อนเป้าหมาย 55–65°C (Thermophilic Target Zone)</text>
+            ${gridLines}
+            ${xLabels}
+            ${paths}
+          </svg>
+        `;
+      }
+
+      function renderCNvsGrowthComparison() {
+        const container = document.getElementById('cnVsGrowthContainer');
+        if (state.batches.length === 0 && state.bioassays.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <strong>ยังไม่มีข้อมูลเปรียบเทียบความสัมพันธ์ระหว่าง C:N Ratio สารตั้งต้น กับอัตราการเติบโตของพืช (FR-ANA-02)</strong>
+              <p>สร้างสูตรปุ๋ยใน Module 2 และบันทึกผลการเจริญเติบโตของพืชใน Module 4 เพื่อวิเคราะห์ความสัมพันธ์ของข้อมูล</p>
+            </div>
+          `;
+          return;
+        }
+
+        const rows = state.batches.map(b => {
+          const lab = state.labResults.find(l => l.batchId === b.id);
+          const bios = state.bioassays.filter(x => x.batchId === b.id);
+          const avgGrowthRate = bios.length > 0
+            ? (bios.reduce((acc, cur) => acc + (cur.height / Math.max(1, cur.periodDays)), 0) / bios.length)
+            : null;
+          const avgFreshWeight = bios.length > 0
+            ? (bios.reduce((acc, cur) => acc + cur.freshWeight, 0) / bios.length)
+            : null;
+
+          return {
+            batchId: b.id,
+            hypothesis: b.hypothesis,
+            initialCN: b.blendedCN,
+            finalCN: (lab && lab.finalCN !== null && lab.finalCN !== undefined) ? lab.finalCN : '-',
+            npk: lab ? `${fmtOptVal(lab.n)}-${fmtOptVal(lab.p)}-${fmtOptVal(lab.k)}%` : '-',
+            bioCount: bios.length,
+            growthRateCmPerDay: avgGrowthRate,
+            avgFreshWeight: avgFreshWeight
+          };
+        });
+
+        container.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Batch ID</th>
+                  <th>สมมติฐานการทดลอง</th>
+                  <th class="num">C:N สารตั้งต้น</th>
+                  <th class="num">C:N ปลายทาง</th>
+                  <th class="num">ธาตุอาหาร (N-P-K)</th>
+                  <th class="num">อัตราการเติบโตเฉลี่ย (cm/วัน)</th>
+                  <th class="num">น้ำหนักสดเฉลี่ย (g)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td><strong>${escapeHtml(r.batchId)}</strong></td>
+                    <td>${escapeHtml(r.hypothesis)}</td>
+                    <td class="num"><span class="badge ${r.initialCN >= 25 && r.initialCN <= 30 ? 'badge-green' : 'badge-warn'}">${r.initialCN}:1</span></td>
+                    <td class="num">${r.finalCN !== '-' ? r.finalCN + ':1' : '-'}</td>
+                    <td class="num">${escapeHtml(r.npk)}</td>
+                    <td class="num"><strong>${r.growthRateCmPerDay !== null ? r.growthRateCmPerDay.toFixed(2) + ' cm/วัน' : 'รอผลปลูกพืช'}</strong></td>
+                    <td class="num">${r.avgFreshWeight !== null ? r.avgFreshWeight.toFixed(1) + ' g' : '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      // Export CSV / PDF (FR-ANA-03)
+      function buildExperimentCsv() {
+        const lines = [];
+        lines.push('=== COMPOST LIMS EXPERIMENT REPORT (CSV EXPORT) ===');
+        lines.push('Batch_ID,Start_Date,Hypothesis,Initial_CN_Ratio,Initial_Moisture_Pct,Pile_Volume_m3,Final_N_Pct,Final_P_Pct,Final_K_Pct,Final_CN_Ratio,Plant_Test_Count,Avg_Growth_Rate_cm_per_day');
+        state.batches.forEach(b => {
+          const lab = state.labResults.find(l => l.batchId === b.id);
+          const bios = state.bioassays.filter(x => x.batchId === b.id);
+          const avgRate = bios.length > 0
+            ? (bios.reduce((acc, cur) => acc + (cur.height / Math.max(1, cur.periodDays)), 0) / bios.length).toFixed(2)
+            : '';
+          lines.push([
+            b.id,
+            b.startDate,
+            `"${(b.hypothesis || '').replace(/"/g, '""')}"`,
+            b.blendedCN,
+            b.blendedMoisture,
+            b.volume,
+            lab ? lab.n : '',
+            lab ? lab.p : '',
+            lab ? lab.k : '',
+            lab ? lab.finalCN : '',
+            bios.length,
+            avgRate
+          ].join(','));
+        });
+        return lines.join('\n');
+      }
+
+      document.getElementById('btnExportCsv').addEventListener('click', function () {
+        const csvContent = buildExperimentCsv();
+        document.getElementById('exportModalTextarea').value = csvContent;
+        document.getElementById('exportModal').classList.add('open');
+
+        // Also trigger standard Blob download for standalone browser use
+        try {
+          const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `compost_lims_report_${new Date().toISOString().slice(0, 10)}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          // Modal fallback is already open
+        }
+      });
+
+      document.getElementById('btnExportPdf').addEventListener('click', function () {
+        try {
+          window.print();
+        } catch (err) {
+          // Ignore if blocked in sandbox
+        }
+        const csvContent = buildExperimentCsv();
+        document.getElementById('exportModalTextarea').value = csvContent;
+        document.getElementById('exportModal').classList.add('open');
+      });
+
+      document.getElementById('btnCloseExportModal').addEventListener('click', function () {
+        document.getElementById('exportModal').classList.remove('open');
+      });
+
+      document.getElementById('btnCopyExportText').addEventListener('click', function () {
+        const ta = document.getElementById('exportModalTextarea');
+        ta.select();
+        try {
+          navigator.clipboard.writeText(ta.value);
+          this.textContent = 'คัดลอกเรียบร้อยแล้ว!';
+          setTimeout(() => { this.textContent = 'คัดลอกข้อมูลทั้งหมด (Copy)'; }, 1800);
+        } catch (err) {
+          document.execCommand('copy');
+        }
+      });
+
+      // =========================================================================
+      // 9. MODULE 6: BACKUP / RESTORE & AUDIT LOG (NFR 4.3)
+      // =========================================================================
+      function renderAuditLogs() {
+        const wrap = document.getElementById('auditLogTableWrap');
+        const badge = document.getElementById('auditCountBadge');
+        badge.textContent = state.auditLogs.length + ' รายการ';
+
+        if (state.auditLogs.length === 0) {
+          wrap.innerHTML = '<div class="empty-state" style="padding:20px;">ยังไม่มีประวัติการแก้ไขข้อมูลในระบบ (Audit Log จะบันทึกอัตโนมัติเมื่อมีการสร้าง/แก้ไขสูตรปุ๋ยหรือบันทึกค่าอุณหภูมิ)</div>';
+          return;
+        }
+
+        wrap.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>วัน-เวลา (Timestamp)</th>
+                  <th>บทบาทผู้ใช้งาน (Role)</th>
+                  <th>รายการปฏิบัติการ (Action)</th>
+                  <th>รายละเอียด (Details)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${state.auditLogs.map(log => `
+                  <tr>
+                    <td style="white-space:nowrap;">${escapeHtml(log.timestamp)}</td>
+                    <td><span class="badge badge-activator">${escapeHtml(log.role)}</span></td>
+                    <td><strong>${escapeHtml(log.action)}</strong></td>
+                    <td>${escapeHtml(log.detail)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      document.getElementById('btnGenerateBackupJson').addEventListener('click', function () {
+        document.getElementById('backupJsonTextarea').value = JSON.stringify(state, null, 2);
+      });
+
+      document.getElementById('btnRestoreBackupJson').addEventListener('click', function () {
+        const raw = document.getElementById('backupJsonTextarea').value.trim();
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.materials)) {
+            state = parsed;
+            addAuditLog('กู้คืนข้อมูลสำรอง (Restore Backup JSON)', 'นำเข้าข้อมูล JSON สำเร็จ');
+            renderMaterialsTable();
+            renderBatchList();
+            syncBatchDropdowns();
+            renderAuditLogs();
+          }
+        } catch (err) {
+          // Invalid JSON
+        }
+      });
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // =========================================================================
+      // INITIALIZE APP
+      // =========================================================================
+      loadState();
+      updateNetworkStatus();
+      renderMaterialsTable();
+      initFormulationDefaults();
+      renderDraftRecipe();
+      renderBatchList();
+      syncBatchDropdowns();
+      renderAuditLogs();
+    })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
