@@ -1,10 +1,16 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <link rel="manifest" href="./manifest.json">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#166534">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Compost LIMS">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23166534'/%3E%3Ctext x='32' y='40' font-family='sans-serif' font-size='24' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EC:N%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23166534'/%3E%3Ctext x='96' y='118' font-family='sans-serif' font-size='72' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EC:N%3C/text%3E%3C/svg%3E">
+  <link id="pwaManifestLink" rel="manifest" href="./manifest.json">
   <title>Compost LIMS — ระบบจัดการข้อมูลห้องปฏิบัติการและการทดลองปุ๋ยหมักอินทรีย์ (18-Day Cycle)</title>
   <style>
     :root {
@@ -236,7 +242,7 @@
 
     .grid-3 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: var(--space-4);
     }
 
@@ -265,6 +271,7 @@
       font-weight: 700;
       margin: 0 0 var(--space-3) 0;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: var(--space-2);
@@ -400,6 +407,37 @@
       border-color: var(--brand);
       background: var(--brand-soft);
       color: var(--brand-hover);
+    }
+
+    /* Volume-to-Weight Calculator Box */
+    .vol-calc-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: var(--radius-sm);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .vol-calc-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+
+    .vol-calc-result-bar {
+      background: var(--surface);
+      border: 1px solid #86efac;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
     }
 
     /* Tables */
@@ -657,19 +695,6 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
-    @media print {
-      .app-header, .nav-bar, .no-print {
-        display: none !important;
-      }
-      body {
-        background: #fff;
-      }
-      .card {
-        box-shadow: none;
-        border: 1px solid #ccc;
-      }
-    }
-
     /* Photo Capture & Preview Styles */
     .photo-upload-box {
       border: 1px dashed var(--border);
@@ -761,6 +786,28 @@
       margin-left: 4px;
     }
 
+    /* GitHub Pages Kit Box */
+    .gh-step-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-subtle);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+
+    @media print {
+      .app-header, .nav-bar, .no-print {
+        display: none !important;
+      }
+      body {
+        background: #fff;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
+
     /* Enhanced Mobile Responsiveness */
     @media (max-width: 768px) {
       .header-inner {
@@ -817,13 +864,13 @@
       .btn-mobile-full {
         width: 100%;
       }
-      .iot-bar {
+      .iot-bar, .vol-calc-result-bar {
         flex-direction: column;
         align-items: stretch;
       }
     }
   </style>
-</head>
+<style data-link-removed-style>a[data-link-removed],a[href*="zPythonSafez"]:not([onclick]){pointer-events:none!important;cursor:default!important;opacity:.6}</style></head>
 <body>
 
   <!-- Top Application Header -->
@@ -833,7 +880,7 @@
         <div class="brand-logo" aria-hidden="true">C:N</div>
         <div>
           <h1 class="brand-title">Compost LIMS</h1>
-          <p class="brand-subtitle">Organic Compost Experimentation &amp; 18-Day Testing System (Online / Offline PWA)</p>
+          <p class="brand-subtitle">Organic Compost Experimentation &amp; 18-Day Testing System (GitHub Pages &amp; Offline PWA Ready)</p>
         </div>
       </div>
 
@@ -842,6 +889,8 @@
           <span class="status-dot"></span>
           <span id="networkStatusText">Online (Local DB Ready)</span>
         </div>
+
+        <button type="button" class="btn btn-primary btn-sm" id="btnInstallPwa" style="display:none;">📲 ติดตั้งแอปลงเครื่อง (PWA)</button>
 
         <button type="button" class="btn-iot" id="btnOpenMqttModal" title="ตั้งค่าการเชื่อมต่ออุปกรณ์วัดค่า IoT ผ่านโปรโตคอล MQTT">
           <span id="mqttStatusDot" style="width:8px; height:8px; border-radius:50%; background:#0284c7; display:inline-block;"></span>
@@ -861,12 +910,12 @@
   <!-- Module Navigation Bar -->
   <nav class="nav-bar" aria-label="เมนูหลักของระบบ">
     <div class="nav-inner">
-      <button type="button" class="nav-tab active" data-tab="mod-materials">1. วัตถุดิบ &amp; ค่า C:N (Master Data)</button>
-      <button type="button" class="nav-tab" data-tab="mod-formulation">2. คำนวณสูตร &amp; สร้างกองปุ๋ย (Formulation)</button>
+      <button type="button" class="nav-tab active" data-tab="mod-materials">1. วัตถุดิบ &amp; ความหนาแน่น (Master Data)</button>
+      <button type="button" class="nav-tab" data-tab="mod-formulation">2. คำนวณสูตร &amp; ตวงปริมาตร (Formulation)</button>
       <button type="button" class="nav-tab" data-tab="mod-monitoring">3. บันทึกหน้างาน 18 วัน (In-Process)</button>
       <button type="button" class="nav-tab" data-tab="mod-bioassay">4. ผลตรวจปุ๋ย &amp; ปลูกพืช (Quality &amp; Bioassay)</button>
       <button type="button" class="nav-tab" data-tab="mod-analytics">5. วิเคราะห์ผล &amp; รายงาน (Analytics)</button>
-      <button type="button" class="nav-tab" data-tab="mod-system">6. สำรองข้อมูล &amp; Audit Log (Offline/System)</button>
+      <button type="button" class="nav-tab" data-tab="mod-system">6. GitHub Pages Deploy &amp; สำรองข้อมูล</button>
     </div>
   </nav>
 
@@ -877,10 +926,10 @@
     <section id="mod-materials" class="module-panel active" aria-labelledby="title-mod-1">
       <div class="section-header">
         <div>
-          <h2 id="title-mod-1" class="section-title">Module 1: Raw Material &amp; C:N Master Data (จัดการวัตถุดิบและค่า C:N)</h2>
-          <p class="section-desc">ฐานข้อมูลวัตถุดิบอินทรีย์มาตรฐาน (MAT-001 ถึง MAT-016) พร้อมค่า C:N Ratio ประเภทวัสดุ และค่าความชื้นเฉลี่ย (FR-MAT-01, FR-MAT-02)</p>
+          <h2 id="title-mod-1" class="section-title">Module 1: Raw Material, C:N &amp; Bulk Density Master Data (จัดการวัตถุดิบ ค่า C:N และความหนาแน่น)</h2>
+          <p class="section-desc">ฐานข้อมูลวัตถุดิบอินทรีย์มาตรฐาน (MAT-001 ถึง MAT-017) พร้อมค่า C:N Ratio ความชื้น และความหนาแน่นรวม (Bulk Density: kg/L และ kg/m³) สำหรับแปลงปริมาตรเป็นน้ำหนักเมื่อไม่มีเครื่องชั่ง</p>
         </div>
-        <button type="button" class="btn btn-primary" id="btnResetMaterials">รีเซ็ตวัตถุดิบมาตรฐาน 16 รายการ</button>
+        <button type="button" class="btn btn-primary" id="btnResetMaterials">รีเซ็ตวัตถุดิบมาตรฐาน 17 รายการ</button>
       </div>
 
       <div class="grid-2">
@@ -888,7 +937,7 @@
         <div class="card">
           <div class="card-title">
             <span>ตารางข้อมูลวัตถุดิบมาตรฐาน (Master Data Table)</span>
-            <span class="badge badge-green" id="materialCountBadge">16 รายการ</span>
+            <span class="badge badge-green" id="materialCountBadge">17 รายการ</span>
           </div>
           <div class="table-wrap">
             <table>
@@ -900,6 +949,7 @@
                   <th>ประเภท (Category)</th>
                   <th class="num">C:N Ratio</th>
                   <th class="num">ความชื้น (%)</th>
+                  <th class="num">ความหนาแน่น (kg/L)</th>
                   <th>การจัดการเบื้องต้น</th>
                   <th>จัดการ</th>
                 </tr>
@@ -949,6 +999,10 @@
                 </div>
                 <input type="number" id="matMoisture" class="form-control" min="0" max="100" step="0.1" placeholder="กรอกมือ หรือดึงจาก IoT">
               </div>
+              <div class="form-group">
+                <label class="form-label" for="matDensity">ความหนาแน่น (kg/L) <span class="optional-tag">ไม่บังคับ</span></label>
+                <input type="number" id="matDensity" class="form-control" min="0.02" max="2.5" step="0.01" placeholder="เช่น 0.25 (250 kg/m³)">
+              </div>
             </div>
 
             <div class="form-group" style="margin-bottom: var(--space-4);">
@@ -981,8 +1035,8 @@
     <section id="mod-formulation" class="module-panel" aria-labelledby="title-mod-2">
       <div class="section-header">
         <div>
-          <h2 id="title-mod-2" class="section-title">Module 2: Formulation &amp; Experiment Setup (วางแผนและคำนวณสูตรปุ๋ย)</h2>
-          <p class="section-desc">คำนวณ Blended C:N Ratio อัตโนมัติ แจ้งเตือนช่วงเป้าหมาย 25:1 – 30:1 บันทึกมิติเริ่มต้น และสร้างรหัส Batch ID พร้อม QR Code (FR-FORM-01 ถึง FR-FORM-04)</p>
+          <h2 id="title-mod-2" class="section-title">Module 2: Formulation &amp; Volume-to-Weight Calculator (วางแผนสูตรปุ๋ยและคำนวณน้ำหนักจากปริมาตร)</h2>
+          <p class="section-desc">คำนวณ Blended C:N Ratio อัตโนมัติ พร้อมเครื่องมือแปลงปริมาตรภาชนะตวงเป็นน้ำหนัก (กิโลกรัม) จากค่าความหนาแน่นของวัสดุใน Master Data สำหรับหน้างานที่ไม่มีเครื่องชั่ง</p>
         </div>
       </div>
 
@@ -1041,16 +1095,93 @@
               <div id="dimensionWarning" style="margin-top:8px; font-size:12px;"></div>
             </div>
 
-            <!-- Ingredients Selector -->
+            <!-- Ingredients Selector + Volume-to-Weight Calculator -->
             <div style="margin-bottom: var(--space-4);">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom: var(--space-2);">
-                <span class="form-label">ส่วนผสมวัตถุดิบในสูตร (กรอกน้ำหนักมือ หรือดึงจากตาชั่ง IoT MQTT)</span>
+                <span class="form-label">เลือกวัตถุดิบเพื่อเพิ่มในสูตร (คำนวณน้ำหนักจากปริมาตรตวง, กรอกมือ หรือดึงจากตาชั่ง MQTT)</span>
                 <button type="button" class="btn-iot" id="btnIotScaleIngredient" title="ดึงค่าน้ำหนักจากตาชั่งดิจิทัล IoT ผ่าน MQTT (Topic: compost/iot/scale)">⚖️ ดึงน้ำหนักตาชั่ง MQTT</button>
               </div>
-              <div style="display:flex; gap: var(--space-2); flex-wrap:wrap; margin-bottom: var(--space-3);">
-                <select id="ingredientSelect" class="form-control" style="flex:2; min-width:200px;" aria-label="เลือกวัตถุดิบ"></select>
-                <input type="number" id="ingredientWeight" class="form-control" style="flex:1; min-width:110px;" placeholder="น้ำหนัก (kg)" min="0.1" step="0.1" value="10" aria-label="น้ำหนักวัตถุดิบ (กิโลกรัม)">
-                <button type="button" class="btn btn-secondary btn-mobile-full" id="btnAddIngredient">+ เพิ่มวัตถุดิบในสูตร</button>
+
+              <div class="form-group" style="margin-bottom: var(--space-3);">
+                <label class="form-label" for="ingredientSelect">1. เลือกชนิดวัตถุดิบจาก Master Data</label>
+                <select id="ingredientSelect" class="form-control" aria-label="เลือกวัตถุดิบ"></select>
+              </div>
+
+              <!-- Volume-to-Weight Calculator (No Scale Needed) -->
+              <div class="vol-calc-box">
+                <div class="vol-calc-header">
+                  <div>
+                    <strong style="color:var(--brand); font-size:14px;">🪣 เครื่องมือคำนวณน้ำหนักจากปริมาตร (กรณีไม่มีเครื่องชั่ง)</strong>
+                    <div id="volCalcDensityInfo" style="font-size:12px; color:var(--muted);">อ้างอิงค่าความหนาแน่นจาก Master Data</div>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnModeContainer">ตวงด้วยภาชนะ / ลิตร</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnModeBoxDim">วัดขนาดกอง กว้าง×ยาว×สูง (ซม.)</button>
+                  </div>
+                </div>
+
+                <!-- Mode A: Container / Liters -->
+                <div id="volModeContainerWrap" class="form-grid" style="margin-bottom:0;">
+                  <div class="form-group">
+                    <label class="form-label" for="volContainerUnit">ภาชนะตวง / หน่วยปริมาตร</label>
+                    <select id="volContainerUnit" class="form-control">
+                      <option value="20" selected>ถังสี / ถังน้ำ 20 ลิตร (20 L)</option>
+                      <option value="10">บัวรดน้ำ / ถัง 10 ลิตร (10 L)</option>
+                      <option value="50">เข่งพลาสติก 50 ลิตร (50 L)</option>
+                      <option value="65">กระบะรถเข็นปูน 65 ลิตร (65 L)</option>
+                      <option value="1">ลิตรโดยตรง (1 L)</option>
+                      <option value="1000">ลูกบาศก์เมตร (1 m³ = 1,000 L)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="volContainerCount">จำนวนที่ตวง (ถัง / เข่ง / หน่วย)</label>
+                    <input type="number" id="volContainerCount" class="form-control" min="0.1" step="0.5" value="2">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="volCompactionFactor">ลักษณะการบรรจุในภาชนะ</label>
+                    <select id="volCompactionFactor" class="form-control">
+                      <option value="1.0" selected>ตักใส่ตามปกติ ไม่กดอัด (1.0×)</option>
+                      <option value="1.15">เขย่า/เคาะให้ยุบตัว (1.15×)</option>
+                      <option value="1.30">กดอัดแน่นในภาชนะ (1.30×)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Mode B: Box Dimensions (cm) -->
+                <div id="volModeBoxWrap" class="form-grid" style="margin-bottom:0; display:none;">
+                  <div class="form-group">
+                    <label class="form-label" for="volDimW">กว้าง (ซม.)</label>
+                    <input type="number" id="volDimW" class="form-control" min="1" step="1" value="100">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="volDimL">ยาว (ซม.)</label>
+                    <input type="number" id="volDimL" class="form-control" min="1" step="1" value="100">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="volDimH">สูง/หนาของชั้นวัสดุ (ซม.)</label>
+                    <input type="number" id="volDimH" class="form-control" min="1" step="1" value="15">
+                  </div>
+                </div>
+
+                <div class="vol-calc-result-bar">
+                  <div>
+                    <div style="font-size:12px; color:var(--muted);" id="volFormulaBreakdown">ปริมาตรรวม 40.0 ลิตร × ความหนาแน่น 0.55 kg/L</div>
+                    <div style="font-size:16px; font-weight:800; color:var(--brand);" id="volCalculatedWeightText">น้ำหนักคำนวณได้: 22.0 kg</div>
+                  </div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnApplyVolWeight">นำไปใส่ช่องน้ำหนัก ↓</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnAddVolDirect">+ เพิ่มตามปริมาตรนี้เข้าสูตรทันที</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weight Input & Add Button -->
+              <div style="display:flex; gap: var(--space-2); flex-wrap:wrap; align-items:end; margin-bottom: var(--space-3);">
+                <div class="form-group" style="flex:1; min-width:160px;">
+                  <label class="form-label" for="ingredientWeight">2. น้ำหนักวัตถุดิบที่ใช้ (kg) *</label>
+                  <input type="number" id="ingredientWeight" class="form-control" placeholder="น้ำหนัก (kg)" min="0.1" step="0.1" value="10">
+                </div>
+                <button type="button" class="btn btn-primary btn-mobile-full" id="btnAddIngredient" style="height:42px;">+ เพิ่มวัตถุดิบในสูตร</button>
               </div>
 
               <div class="table-wrap">
@@ -1062,6 +1193,7 @@
                       <th>ประเภท</th>
                       <th class="num">C:N</th>
                       <th class="num">ความชื้น</th>
+                      <th class="num">ปริมาตรประมาณ</th>
                       <th class="num">น้ำหนัก (kg)</th>
                       <th>ลบ</th>
                     </tr>
@@ -1107,7 +1239,7 @@
                 <div class="metric-sub">เหมาะสม: 50% – 65%</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">น้ำหนักรวม / ปริมาตรกอง</div>
+                <div class="metric-label">น้ำหนักรวม / ปริมาตรตวงรวม</div>
                 <div class="metric-value" id="calcTotalWeight">0 kg</div>
                 <div class="metric-sub" id="calcPileVolume">ปริมาตรตั้งต้น: 2.16 m³</div>
               </div>
@@ -1133,7 +1265,7 @@
       <div class="section-header">
         <div>
           <h2 id="title-mod-3" class="section-title">Module 3: In-Process Monitoring &amp; Turning Schedule (ติดตามการหมัก 18 วัน)</h2>
-          <p class="section-desc">ตารางงานอัตโนมัติ 18 วัน หน้าจอบันทึกผลแบบ Touch-friendly สำหรับมือถือหน้างาน และระบบวินิจฉัยปัญหาอัตโนมัติ (FR-PROC-01 ถึง FR-PROC-03)</p>
+          <p class="section-desc">ตารางงานอัตโนมัติ 18 วัน หน้าจอบันทึกผลแบบ Touch-friendly สำหรับมือถือหน้างาน พร้อมถ่ายภาพและเชื่อมต่อ MQTT (FR-PROC-01 ถึง FR-PROC-03)</p>
         </div>
       </div>
 
@@ -1162,7 +1294,7 @@
       <div class="section-header">
         <div>
           <h2 id="title-mod-4" class="section-title">Module 4: Compost Quality &amp; Crop Bioassay Testing (ตรวจคุณภาพปุ๋ยและปลูกพืช)</h2>
-          <p class="section-desc">บันทึกผลวิเคราะห์ทางเคมีกายภาพหลัง Day 18 (NPK, OM, C:N, EC) และผลการทดลองปลูกพืช (FR-TEST-01, FR-TEST-02)</p>
+          <p class="section-desc">บันทึกผลวิเคราะห์ปุ๋ยหมักหลัง Day 18 (เปิดกว้าง ไม่บังคับกรอกค่าเคมีหากไม่มีเครื่องมือ) และผลการทดลองปลูกพืชพร้อมภาพถ่าย (FR-TEST-01, FR-TEST-02)</p>
         </div>
       </div>
 
@@ -1280,10 +1412,10 @@
               </div>
               <div class="form-group">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
-                  <label class="form-label" for="bioFreshWeight">น้ำหนักสด (g) *</label>
+                  <label class="form-label" for="bioFreshWeight">น้ำหนักสด (g) <span class="optional-tag">ไม่บังคับ</span></label>
                   <button type="button" class="btn-iot" id="btnIotBioFreshWeight" title="ดึงน้ำหนักสดจากตาชั่ง IoT ผ่าน MQTT">⚖️ MQTT</button>
                 </div>
-                <input type="number" id="bioFreshWeight" class="form-control" step="0.1" min="0" placeholder="เช่น 85.0" required>
+                <input type="number" id="bioFreshWeight" class="form-control" step="0.1" min="0" placeholder="เว้นว่างได้หากไม่มีตาชั่งกรัม">
               </div>
               <div class="form-group">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
@@ -1352,12 +1484,57 @@
       </div>
     </section>
 
-    <!-- ==================== MODULE 6: OFFLINE BACKUP, AUDIT LOG & FREE ARCHITECTURE ==================== -->
+    <!-- ==================== MODULE 6: GITHUB PAGES DEPLOYMENT, OFFLINE BACKUP & AUDIT LOG ==================== -->
     <section id="mod-system" class="module-panel" aria-labelledby="title-mod-6">
       <div class="section-header">
         <div>
-          <h2 id="title-mod-6" class="section-title">Module 6: ระบบสำรองข้อมูล, Audit Log และสถาปัตยกรรมฟรี (Offline / NFR 4.3)</h2>
-          <p class="section-desc">รองรับการทำงานแบบ Offline/Online บน PC และ Android พร้อมระบบสำรองข้อมูลและบันทึกประวัติการแก้ไขย้อนหลัง (Audit Log)</p>
+          <h2 id="title-mod-6" class="section-title">Module 6: GitHub Pages Deployment Kit, สำรองข้อมูล และ Audit Log</h2>
+          <p class="section-desc">เครื่องมือเตรียมไฟล์และตรวจสอบความพร้อมสำหรับ Deploy ขึ้น GitHub Pages ฟรี (รองรับ Subpath <code>username.github.io/repo-name/</code> และโหมด Offline PWA บน PC / Android)</p>
+        </div>
+      </div>
+
+      <!-- GitHub Pages Deployment Generator Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>🚀 เครื่องมือเตรียมไฟล์สำหรับ Deploy ขึ้น GitHub Pages (GitHub Pages &amp; Offline PWA Kit)</span>
+          <span class="badge badge-green">Ready for GitHub Pages (Relative Path ./ Supported)</span>
+        </div>
+
+        <div class="alert-box alert-ok" style="margin-bottom: var(--space-4);">
+          <strong>ความพร้อมของไฟล์ <code>index.html</code> นี้สำหรับ GitHub Pages:</strong>
+          แอปนี้ถูกตั้งค่าให้ใช้ Relative Path (<code>./</code>) ทั้งหมด ไม่มี Dependency ภายนอกที่บังคับโหลด และฝังไอคอน SVG + Dynamic Web App Manifest ไว้ในตัวแล้ว คุณสามารถอัปโหลดไฟล์ <code>index.html</code> เพียงไฟล์เดียวขึ้น GitHub Repository แล้วเปิดใช้งาน <strong>Settings → Pages → Branch: main (/root)</strong> ได้ทันที หรือสร้างไฟล์เสริมด้านล่างเพื่อให้รองรับการแคชแบบ Offline 100% บนมือถือ Android
+        </div>
+
+        <div class="grid-3" style="margin-bottom: var(--space-4);">
+          <div class="gh-step-box">
+            <div style="font-weight:700; font-size:14px; color:var(--brand); margin-bottom:4px;">ไฟล์ที่ 1: <code>index.html</code> (ไฟล์หลัก)</div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">กดปุ่ม Download (ไอคอนดาวน์โหลดมุมขวาบนของจอพรีวิว) เพื่อรับไฟล์ <code>index.html</code> ไปอัปโหลดเข้า Repository</div>
+            <span class="badge badge-green">พร้อมใช้งานทันที</span>
+          </div>
+          <div class="gh-step-box">
+            <div style="font-weight:700; font-size:14px; color:var(--brand); margin-bottom:4px;">ไฟล์ที่ 2: <code>sw.js</code> &amp; <code>manifest.json</code></div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">สำหรับเปิดโหมด Offline Cache เต็มรูปแบบและปุ่ม Add to Home Screen บน Android เมื่อเปิดผ่านลิงก์ GitHub Pages</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnGenSwJs">ดู/คัดลอกโค้ด <code>sw.js</code></button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnGenManifestJson">ดู/คัดลอก <code>manifest.json</code></button>
+            </div>
+          </div>
+          <div class="gh-step-box">
+            <div style="font-weight:700; font-size:14px; color:var(--brand); margin-bottom:4px;">ไฟล์ที่ 3: GitHub Actions Auto-Deploy</div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">ไฟล์ <code>.github/workflows/deploy.yml</code> สำหรับสั่ง Deploy ขึ้น GitHub Pages อัตโนมัติทุกครั้งที่อัปเดตโค้ด</div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnGenGhWorkflow">ดู/คัดลอก <code>deploy.yml</code></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+            <label class="form-label" for="ghFileContentArea" id="ghFileLabel">โค้ดสำหรับวางใน GitHub Repository (คลิกปุ่มด้านบนเพื่อสลับดูไฟล์ <code>sw.js</code>, <code>manifest.json</code> หรือ <code>deploy.yml</code>)</label>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-primary btn-sm" id="btnCopyGhFile">คัดลอกโค้ดไฟล์นี้ (Copy)</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadGhFile">ดาวน์โหลดไฟล์</button>
+            </div>
+          </div>
+          <textarea id="ghFileContentArea" class="form-control" rows="8" readonly style="font-family:monospace; font-size:12px;"></textarea>
         </div>
       </div>
 
@@ -1367,7 +1544,7 @@
             <span>สำรองและกู้คืนข้อมูลในเครื่อง (Automated Local Backup &amp; JSON Sync - NFR 4.3)</span>
           </div>
           <p style="font-size:14px; color:var(--muted); margin-top:0;">
-            ข้อมูลทั้งหมดถูกบันทึกอัตโนมัติลงในฐานข้อมูลภายในเบราว์เซอร์ (IndexedDB และ LocalStorage) ทำให้ใช้งานขณะไม่มีอินเทอร์เน็ตที่หน้าแปลงหมักได้ทันที และสามารถคัดลอก/นำเข้าข้อมูล JSON เพื่อย้ายเครื่องระหว่างมือถือ Android และ PC ได้ฟรีโดยไม่ต้องพึ่งเซิร์ฟเวอร์เสียค่าใช้จ่าย
+            ข้อมูลทั้งหมดถูกบันทึกอัตโนมัติลงในฐานข้อมูลภายในเบราว์เซอร์ (IndexedDB และ LocalStorage) ทำให้ใช้งานบน GitHub Pages ขณะไม่มีอินเทอร์เน็ตที่หน้าแปลงหมักได้ทันที และสามารถคัดลอก/นำเข้าข้อมูล JSON เพื่อย้ายเครื่องระหว่างมือถือ Android และ PC ได้ฟรี
           </p>
           <div style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-3);">
             <button type="button" class="btn btn-primary" id="btnGenerateBackupJson">สร้างข้อมูล Backup JSON ล่าสุด</button>
@@ -1378,13 +1555,14 @@
 
         <div class="card">
           <div class="card-title">
-            <span>สถาปัตยกรรมฟรีสำหรับใช้งานจริงบน PC / Android (Zero-Cost Stack)</span>
+            <span>ขั้นตอนนำขึ้น GitHub Pages ใน 3 นาที (Zero-Cost Hosting)</span>
           </div>
-          <ul style="font-size:14px; padding-left:20px; margin:0; color:var(--ink);">
-            <li style="margin-bottom:8px;"><strong>Client &amp; Offline Engine (ฟรี 100%):</strong> HTML5 + Vanilla JS + IndexedDB / LocalStorage ทำงานบน Chrome/Edge (PC) และ Chrome บน Android ได้โดยไม่ต้องติดตั้งโปรแกรมเสริม</li>
-            <li style="margin-bottom:8px;"><strong>Web Hosting ฟรี:</strong> อัปโหลดไฟล์ <code>index.html</code> ไฟล์เดียวขึ้น GitHub Pages, Cloudflare Pages หรือ Netlify Free Tier เพื่อเปิดผ่าน HTTPS และติดตั้งเป็น PWA (Add to Home Screen บน Android)</li>
-            <li style="margin-bottom:8px;"><strong>Database Sync:</strong> ใช้ฟังก์ชัน Export/Import JSON หรือเชื่อมต่อ Supabase Free Tier (PostgreSQL 500MB ฟรี) เมื่อต้องการซิงค์หลายอุปกรณ์</li>
-          </ul>
+          <ol style="font-size:14px; padding-left:20px; margin:0; color:var(--ink);">
+            <li style="margin-bottom:8px;"><strong>สร้าง Repository บน GitHub:</strong> ตั้งชื่อเช่น <code>compost-lims</code> (เลือกเป็น Public เพื่อใช้ GitHub Pages ฟรี)</li>
+            <li style="margin-bottom:8px;"><strong>อัปโหลดไฟล์:</strong> กด <em>Add file → Upload files</em> แล้วนำไฟล์ <code>index.html</code> (และไฟล์ <code>sw.js</code>, <code>manifest.json</code> จากกล่องด้านบน) อัปโหลดขึ้นไปที่โฟลเดอร์หลัก แล้วกด <em>Commit changes</em></li>
+            <li style="margin-bottom:8px;"><strong>เปิดใช้งาน GitHub Pages:</strong> ไปที่เมนู <strong>Settings → Pages</strong> ของ Repository เลือก Source เป็น <strong>Deploy from a branch</strong> เลือกกิ่ง <code>main</code> และโฟลเดอร์ <code>/ (root)</code> แล้วกด <strong>Save</strong></li>
+            <li><strong>เปิดใช้งานจริงบน PC / Android:</strong> รอประมาณ 1 นาที จะได้ลิงก์ <code>(link removed)</code> เปิดผ่าน Chrome บน Android แล้วกดปุ่ม <strong>📲 ติดตั้งแอปลงเครื่อง (PWA)</strong> ได้ทันที</li>
+          </ol>
         </div>
       </div>
 
@@ -1425,7 +1603,7 @@
         <button type="button" class="btn btn-secondary btn-sm" id="btnCloseMqttModal">ปิดหน้าต่าง</button>
       </div>
       <p style="font-size:13px; color:var(--muted); margin-top:0;">
-        เชื่อมต่อเซนเซอร์วัดความชื้น อุณหภูมิ และเครื่องชั่งน้ำหนักดิจิทัลผ่าน <strong>MQTT over WebSockets</strong> เพื่อดึงค่าเข้าสู่ฟอร์มอัตโนมัติ หรือเลือกกรอกตัวเลขด้วยมือได้ทุกช่องตามความสะดวก
+        เชื่อมต่อเซนเซอร์วัดความชื้น อุณหภูมิ และเครื่องชั่งน้ำหนักดิจิทัลผ่าน <strong>MQTT over WebSockets</strong> (เมื่อรันบน GitHub Pages ที่เป็น HTTPS แนะนำให้ใช้ <code>wss://</code> เช่น พอร์ต 8884) หรือเลือกตวงตามปริมาตรและกรอกตัวเลขด้วยมือได้ทุกช่อง
       </p>
 
       <div class="form-grid">
@@ -1483,26 +1661,160 @@
       'use strict';
 
       // =========================================================================
-      // 1. DEFAULT MASTER DATA (FR-MAT-02: Exact 16 materials from SRS Table)
+      // 0. GITHUB PAGES PWA & SERVICE WORKER INITIALIZATION (Subpath-Safe)
+      // =========================================================================
+      const PWA_ICON_SVG_DATA_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23166534'/%3E%3Ctext x='96' y='118' font-family='sans-serif' font-size='72' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EC:N%3C/text%3E%3C/svg%3E";
+
+      const GITHUB_PAGES_MANIFEST_OBJ = {
+        name: "Compost LIMS — ระบบจัดการการทดลองปุ๋ยหมักอินทรีย์ 18 วัน",
+        short_name: "Compost LIMS",
+        description: "ระบบจัดการข้อมูลห้องปฏิบัติการและการทดลองปุ๋ยหมักอินทรีย์ 18 วัน (Online/Offline PWA)",
+        start_url: "./index.html",
+        scope: "./",
+        display: "standalone",
+        background_color: "#f4f6f4",
+        theme_color: "#166534",
+        icons: [
+          {
+            src: PWA_ICON_SVG_DATA_URI,
+            sizes: "192x192 512x512",
+            type: "image/svg+xml",
+            purpose: "any maskable"
+          }
+        ]
+      };
+
+      const GITHUB_PAGES_SW_CODE = `// sw.js — Offline-First Service Worker for GitHub Pages (Supports Subpath e.g. /compost-lims/)
+const CACHE_NAME = 'compost-lims-ghpages-v1';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return (
+        cached ||
+        fetch(event.request)
+          .then((response) => {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            return response;
+          })
+          .catch(() => caches.match('./index.html'))
+      );
+    })
+  );
+});
+`;
+
+      const GITHUB_ACTIONS_WORKFLOW_YAML = `# .github/workflows/deploy.yml — Deploy Static PWA to GitHub Pages Automatically
+name: Deploy Compost LIMS to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+`;
+
+      // Register Service Worker & Dynamic Manifest fallback when deployed on GitHub Pages
+      function initGitHubPagesPwaSupport() {
+        try {
+          if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+            navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function () {
+              // If sw.js is not uploaded alongside index.html yet, app still works cleanly via LocalStorage/IndexedDB
+            });
+          }
+        } catch (err) {}
+
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('btnInstallPwa');
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+          if (installBtn) installBtn.style.display = 'inline-flex';
+        });
+
+        if (installBtn) {
+          installBtn.addEventListener('click', function () {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.finally(function () {
+              deferredPrompt = null;
+              installBtn.style.display = 'none';
+            });
+          });
+        }
+      }
+
+      // =========================================================================
+      // 1. DEFAULT MASTER DATA (MAT-001 to MAT-017 with Bulk Density in kg/L)
       // =========================================================================
       const DEFAULT_MATERIALS = [
-        { id: 'MAT-001', name: 'ต้นกล้วยสด (Fresh Banana Trunk)', category: 'Green Waste', cn: 35, moisture: 80, pretreat: 'ต้องสับย่อย' },
-        { id: 'MAT-002', name: 'ต้นกล้วยแห้ง (Dry Banana Trunk)', category: 'Brown Carbon', cn: 70, moisture: 15, pretreat: 'ต้องสับย่อย' },
-        { id: 'MAT-003', name: 'ใบกล้วยสด (Fresh Banana Leaves)', category: 'Green Waste', cn: 32, moisture: 70, pretreat: '-' },
-        { id: 'MAT-004', name: 'ใบกล้วยแห้ง (Dry Banana Leaves)', category: 'Brown Carbon', cn: 75, moisture: 10, pretreat: '-' },
-        { id: 'MAT-005', name: 'กากกาแฟ (Spent Coffee Grounds)', category: 'Green Waste', cn: 20, moisture: 50, pretreat: '-' },
-        { id: 'MAT-006', name: 'เวย์จากกรีกโยเกิร์ต (Greek Yogurt Whey)', category: 'Activator', cn: 12, moisture: 90, pretreat: 'Liquid' },
-        { id: 'MAT-007', name: 'หญ้าสด (Fresh Grass)', category: 'Green Waste', cn: 20, moisture: 60, pretreat: '-' },
-        { id: 'MAT-008', name: 'หญ้าแห้ง (Dry Grass)', category: 'Brown Carbon', cn: 55, moisture: 12, pretreat: '-' },
-        { id: 'MAT-009', name: 'ใบมันเทศ (Sweet Potato Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
-        { id: 'MAT-010', name: 'ใบฟักทอง (Pumpkin Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
-        { id: 'MAT-011', name: 'ใบชะพลู (Wild Betel Leaves)', category: 'Green Waste', cn: 18, moisture: 70, pretreat: '-' },
-        { id: 'MAT-012', name: 'ผักบุ้ง (Water Spinach)', category: 'Green Waste', cn: 15, moisture: 85, pretreat: '-' },
-        { id: 'MAT-013', name: 'ใบชยา (Chaya Leaves)', category: 'Green Waste', cn: 14, moisture: 75, pretreat: '-' },
-        { id: 'MAT-014', name: 'ใบหม่อน (Mulberry Leaves)', category: 'Green Waste', cn: 18, moisture: 65, pretreat: '-' },
-        { id: 'MAT-015', name: 'กิ่งไม้ทั่วๆ ไป (General Wood Twigs)', category: 'Brown Carbon', cn: 200, moisture: 15, pretreat: 'ต้องสับละเอียด' },
-        { id: 'MAT-016', name: 'เศษอาหารทั่วๆ ไป (General Food Waste)', category: 'Green Waste', cn: 17, moisture: 70, pretreat: '-' },
-        { id: 'MAT-017', name: 'กระดาษลัง (Corrugated Cardboard)', category: 'Brown Carbon', cn: 350, moisture: 8, pretreat: 'ลอกเทปพลาสติกและฉีก/ตัดเป็นชิ้นเล็ก' }
+        { id: 'MAT-001', name: 'ต้นกล้วยสด (Fresh Banana Trunk)', category: 'Green Waste', cn: 35, moisture: 80, density: 0.55, pretreat: 'ต้องสับย่อย' },
+        { id: 'MAT-002', name: 'ต้นกล้วยแห้ง (Dry Banana Trunk)', category: 'Brown Carbon', cn: 70, moisture: 15, density: 0.15, pretreat: 'ต้องสับย่อย' },
+        { id: 'MAT-003', name: 'ใบกล้วยสด (Fresh Banana Leaves)', category: 'Green Waste', cn: 32, moisture: 70, density: 0.18, pretreat: '-' },
+        { id: 'MAT-004', name: 'ใบกล้วยแห้ง (Dry Banana Leaves)', category: 'Brown Carbon', cn: 75, moisture: 10, density: 0.08, pretreat: '-' },
+        { id: 'MAT-005', name: 'กากกาแฟ (Spent Coffee Grounds)', category: 'Green Waste', cn: 20, moisture: 50, density: 0.55, pretreat: '-' },
+        { id: 'MAT-006', name: 'เวย์จากกรีกโยเกิร์ต (Greek Yogurt Whey)', category: 'Activator', cn: 12, moisture: 90, density: 1.03, pretreat: 'Liquid' },
+        { id: 'MAT-007', name: 'หญ้าสด (Fresh Grass)', category: 'Green Waste', cn: 20, moisture: 60, density: 0.25, pretreat: '-' },
+        { id: 'MAT-008', name: 'หญ้าแห้ง (Dry Grass)', category: 'Brown Carbon', cn: 55, moisture: 12, density: 0.10, pretreat: '-' },
+        { id: 'MAT-009', name: 'ใบมันเทศ (Sweet Potato Leaves)', category: 'Green Waste', cn: 14, moisture: 75, density: 0.20, pretreat: '-' },
+        { id: 'MAT-010', name: 'ใบฟักทอง (Pumpkin Leaves)', category: 'Green Waste', cn: 14, moisture: 75, density: 0.20, pretreat: '-' },
+        { id: 'MAT-011', name: 'ใบชะพลู (Wild Betel Leaves)', category: 'Green Waste', cn: 18, moisture: 70, density: 0.18, pretreat: '-' },
+        { id: 'MAT-012', name: 'ผักบุ้ง (Water Spinach)', category: 'Green Waste', cn: 15, moisture: 85, density: 0.22, pretreat: '-' },
+        { id: 'MAT-013', name: 'ใบชยา (Chaya Leaves)', category: 'Green Waste', cn: 14, moisture: 75, density: 0.22, pretreat: '-' },
+        { id: 'MAT-014', name: 'ใบหม่อน (Mulberry Leaves)', category: 'Green Waste', cn: 18, moisture: 65, density: 0.18, pretreat: '-' },
+        { id: 'MAT-015', name: 'กิ่งไม้ทั่วๆ ไป (General Wood Twigs)', category: 'Brown Carbon', cn: 200, moisture: 15, density: 0.28, pretreat: 'ต้องสับละเอียด' },
+        { id: 'MAT-016', name: 'เศษอาหารทั่วๆ ไป (General Food Waste)', category: 'Green Waste', cn: 17, moisture: 70, density: 0.74, pretreat: '-' },
+        { id: 'MAT-017', name: 'กระดาษลัง (Corrugated Cardboard)', category: 'Brown Carbon', cn: 350, moisture: 8, density: 0.11, pretreat: 'ลอกเทปพลาสติกและฉีก/ตัดเป็นชิ้นเล็ก' }
       ];
 
       // 18-Day Automated Task Schedule (FR-PROC-01)
@@ -1527,17 +1839,21 @@
         18: { phase: 'กลับกองครั้งที่ 8 / สิ้นสุดการหมัก (Just Warm)', turnRequired: true }
       };
 
-      // Application State (starts empty for user-entered batches/logs/tests per scope instructions)
+      // Application State
       let state = {
         materials: JSON.parse(JSON.stringify(DEFAULT_MATERIALS)),
-        batches: [],      // { id, startDate, hypothesis, width, length, height, volume, cover, ingredients, blendedCN, blendedMoisture, totalWeight, logs: {} }
-        labResults: [],   // { batchId, n, p, k, om, finalCN, ec, updatedAt }
-        bioassays: [],    // { testId, batchId, cropType, periodDays, height, leaves, freshWeight, dryWeight, survival }
-        auditLogs: []     // { timestamp, role, action, detail }
+        batches: [],
+        labResults: [],
+        bioassays: [],
+        auditLogs: []
       };
 
-      // Draft ingredients for Module 2 Formulation
+      // Draft state for Module 2 Formulation & Volume Calculator
       let draftIngredients = [];
+      let volCalcMode = 'container';
+      let latestCalculatedWeightKg = 0;
+      let latestCalculatedVolumeL = 0;
+
       let selectedMonitorBatchId = '';
       let selectedMonitorDay = 1;
       let selectedMoistureChoice = '1-2 Drops Ideal';
@@ -1550,6 +1866,9 @@
       let draftLogPhoto = '';
       let draftLabPhoto = '';
       let draftBioPhoto = '';
+
+      // Current GitHub Pages generated file in Module 6
+      let currentGhFileName = 'sw.js';
 
       // MQTT IoT Telemetry Buffer & WebSocket State
       let mqttSocket = null;
@@ -1564,6 +1883,97 @@
         ec: 1.58,
         updatedAt: new Date().toLocaleTimeString('th-TH')
       };
+
+      function getCategoryDefaults(cat) {
+        if (cat === 'Brown Carbon') return { cn: 70, moisture: 15, density: 0.12 };
+        if (cat === 'Activator') return { cn: 12, moisture: 85, density: 1.00 };
+        if (cat === 'Manure') return { cn: 20, moisture: 65, density: 0.65 };
+        return { cn: 20, moisture: 70, density: 0.25 };
+      }
+
+      // =========================================================================
+      // 2. OFFLINE STORAGE ENGINE (LocalStorage + IndexedDB Best-Effort)
+      // =========================================================================
+      const STORAGE_KEY = 'compost_lims_v1_state';
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.materials) && parsed.materials.length > 0) {
+              const defMap = {};
+              DEFAULT_MATERIALS.forEach(d => { defMap[d.id] = d; });
+              state.materials = parsed.materials.map(m => {
+                if (m.density === undefined || m.density === null || m.density === '') {
+                  const fallback = defMap[m.id] ? defMap[m.id].density : getCategoryDefaults(m.category).density;
+                  return Object.assign({}, m, { density: fallback });
+                }
+                return m;
+              });
+              if (!state.materials.some(m => m.id === 'MAT-017')) {
+                state.materials.push(JSON.parse(JSON.stringify(defMap['MAT-017'])));
+              }
+              state.batches = Array.isArray(parsed.batches) ? parsed.batches : [];
+              state.labResults = Array.isArray(parsed.labResults) ? parsed.labResults : [];
+              state.bioassays = Array.isArray(parsed.bioassays) ? parsed.bioassays : [];
+              state.auditLogs = Array.isArray(parsed.auditLogs) ? parsed.auditLogs : [];
+            }
+          }
+        } catch (err) {}
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {}
+        saveToIndexedDB();
+      }
+
+      function saveToIndexedDB() {
+        try {
+          if (!window.indexedDB) return;
+          const req = window.indexedDB.open('CompostLIMS_DB', 1);
+          req.onupgradeneeded = function (e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('snapshot')) {
+              db.createObjectStore('snapshot', { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = function (e) {
+            const db = e.target.result;
+            const tx = db.transaction('snapshot', 'readwrite');
+            tx.objectStore('snapshot').put({ id: 'latest', data: state, updatedAt: new Date().toISOString() });
+          };
+        } catch (err) {}
+      }
+
+      function addAuditLog(action, detail) {
+        const roleEl = document.getElementById('roleSelector');
+        const role = roleEl ? roleEl.value : 'Lab Researcher';
+        state.auditLogs.unshift({
+          timestamp: new Date().toLocaleString('th-TH'),
+          role: role,
+          action: action,
+          detail: detail
+        });
+        saveState();
+        renderAuditLogs();
+      }
+
+      function updateNetworkStatus() {
+        const pill = document.getElementById('networkStatusPill');
+        const text = document.getElementById('networkStatusText');
+        if (navigator.onLine === false) {
+          pill.classList.add('offline');
+          text.textContent = 'Offline Mode (ทำงานผ่านฐานข้อมูลในเครื่อง)';
+        } else {
+          pill.classList.remove('offline');
+          text.textContent = 'Online / Offline Ready (Local DB)';
+        }
+      }
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
 
       // =========================================================================
       // PHOTO CAPTURE & LIGHTBOX HELPER (Works Offline on Mobile & PC)
@@ -1640,14 +2050,13 @@
         }
       });
 
-      // Bind static photo uploaders (Modules 1, 2, 4)
       bindPhotoUploader('matPhotoInput', 'matPhotoPreview', 'btnClearMatPhoto', val => { draftMatPhoto = val; });
       bindPhotoUploader('batchPhotoInput', 'batchPhotoPreview', 'btnClearBatchPhoto', val => { draftBatchPhoto = val; });
       bindPhotoUploader('labPhotoInput', 'labPhotoPreview', 'btnClearLabPhoto', val => { draftLabPhoto = val; });
       bindPhotoUploader('bioPhotoInput', 'bioPhotoPreview', 'btnClearBioPhoto', val => { draftBioPhoto = val; });
 
       // =========================================================================
-      // MQTT IoT CONNECTOR ENGINE (Parallel to Manual Entry)
+      // MQTT IoT CONNECTOR ENGINE
       // =========================================================================
       function updateMqttDisplay() {
         document.getElementById('mqttValCoreTemp').textContent = `${mqttTelemetry.coreTemp} °C`;
@@ -1702,13 +2111,9 @@
             try {
               const parsed = JSON.parse(evt.data);
               applyIncomingMqttPayload(parsed);
-            } catch (err) {
-              // Binary MQTT frame or non-JSON packet
-            }
+            } catch (err) {}
           };
-          mqttSocket.onerror = function () {
-            // Keep local MQTT buffer active if sandbox blocks external WebSocket
-          };
+          mqttSocket.onerror = function () {};
         } catch (err) {
           mqttConnected = true;
           updateMqttDisplay();
@@ -1746,7 +2151,6 @@
         } catch (err) {}
       });
 
-      // Inline IoT Pull Buttons for Modules 1, 2, 4
       document.getElementById('btnIotMatMoisture').addEventListener('click', function () {
         document.getElementById('matMoisture').value = mqttTelemetry.moisture;
       });
@@ -1768,86 +2172,6 @@
       });
 
       // =========================================================================
-      // 2. OFFLINE STORAGE ENGINE (LocalStorage + IndexedDB Best-Effort)
-      // =========================================================================
-      const STORAGE_KEY = 'compost_lims_v1_state';
-
-      function loadState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && Array.isArray(parsed.materials) && parsed.materials.length > 0) {
-              state.materials = parsed.materials;
-              state.batches = Array.isArray(parsed.batches) ? parsed.batches : [];
-              state.labResults = Array.isArray(parsed.labResults) ? parsed.labResults : [];
-              state.bioassays = Array.isArray(parsed.bioassays) ? parsed.bioassays : [];
-              state.auditLogs = Array.isArray(parsed.auditLogs) ? parsed.auditLogs : [];
-            }
-          }
-        } catch (err) {
-          // Fallback to in-memory state in restricted sandbox
-        }
-      }
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (err) {
-          // Best-effort persistence
-        }
-        saveToIndexedDB();
-      }
-
-      function saveToIndexedDB() {
-        try {
-          if (!window.indexedDB) return;
-          const req = window.indexedDB.open('CompostLIMS_DB', 1);
-          req.onupgradeneeded = function (e) {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('snapshot')) {
-              db.createObjectStore('snapshot', { keyPath: 'id' });
-            }
-          };
-          req.onsuccess = function (e) {
-            const db = e.target.result;
-            const tx = db.transaction('snapshot', 'readwrite');
-            tx.objectStore('snapshot').put({ id: 'latest', data: state, updatedAt: new Date().toISOString() });
-          };
-        } catch (err) {
-          // Ignore in restricted iframe
-        }
-      }
-
-      function addAuditLog(action, detail) {
-        const roleEl = document.getElementById('roleSelector');
-        const role = roleEl ? roleEl.value : 'Lab Researcher';
-        state.auditLogs.unshift({
-          timestamp: new Date().toLocaleString('th-TH'),
-          role: role,
-          action: action,
-          detail: detail
-        });
-        saveState();
-        renderAuditLogs();
-      }
-
-      // Online / Offline Indicator
-      function updateNetworkStatus() {
-        const pill = document.getElementById('networkStatusPill');
-        const text = document.getElementById('networkStatusText');
-        if (navigator.onLine === false) {
-          pill.classList.add('offline');
-          text.textContent = 'Offline Mode (ทำงานผ่านฐานข้อมูลในเครื่อง)';
-        } else {
-          pill.classList.remove('offline');
-          text.textContent = 'Online / Offline Ready (Local DB)';
-        }
-      }
-      window.addEventListener('online', updateNetworkStatus);
-      window.addEventListener('offline', updateNetworkStatus);
-
-      // =========================================================================
       // 3. NAVIGATION TABS
       // =========================================================================
       const navTabs = document.querySelectorAll('.nav-tab');
@@ -1856,6 +2180,7 @@
       function switchTab(tabId) {
         navTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
         panels.forEach(p => p.classList.toggle('active', p.id === tabId));
+        if (tabId === 'mod-formulation') updateVolumeToWeightCalc();
         if (tabId === 'mod-monitoring') renderMonitoringModule();
         if (tabId === 'mod-bioassay') renderBioassayModule();
         if (tabId === 'mod-analytics') renderAnalyticsModule();
@@ -1867,7 +2192,7 @@
       });
 
       // =========================================================================
-      // 4. MODULE 1: RAW MATERIAL MASTER DATA (FR-MAT-01, FR-MAT-02)
+      // 4. MODULE 1: RAW MATERIAL MASTER DATA (FR-MAT-01, FR-MAT-02 + Bulk Density)
       // =========================================================================
       function getCategoryBadgeClass(cat) {
         if (cat === 'Green Waste') return 'badge-green';
@@ -1876,11 +2201,12 @@
         return 'badge-manure';
       }
 
-      function getCategoryDefaults(cat) {
-        if (cat === 'Brown Carbon') return { cn: 70, moisture: 15 };
-        if (cat === 'Activator') return { cn: 12, moisture: 85 };
-        if (cat === 'Manure') return { cn: 20, moisture: 65 };
-        return { cn: 20, moisture: 70 }; // Green Waste default
+      function getMaterialEffectiveDensity(mat) {
+        if (!mat) return 0.25;
+        if (mat.density !== null && mat.density !== undefined && mat.density !== '' && !Number.isNaN(Number(mat.density))) {
+          return Number(mat.density);
+        }
+        return getCategoryDefaults(mat.category).density;
       }
 
       function renderMaterialsTable() {
@@ -1889,13 +2215,17 @@
         countBadge.textContent = state.materials.length + ' รายการ';
 
         if (state.materials.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">ไม่มีข้อมูลวัตถุดิบ กรุณาเพิ่มวัตถุดิบหรือกดปุ่มรีเซ็ตวัตถุดิบมาตรฐาน</div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state">ไม่มีข้อมูลวัตถุดิบ กรุณาเพิ่มวัตถุดิบหรือกดปุ่มรีเซ็ตวัตถุดิบมาตรฐาน</div></td></tr>';
           return;
         }
 
         tbody.innerHTML = state.materials.map(m => {
           const cnText = (m.cn !== null && m.cn !== undefined && m.cn !== '') ? `<strong>${Number(m.cn)}:1</strong>` : '<span style="color:var(--muted);">ไม่ระบุ (-)</span>';
           const moistText = (m.moisture !== null && m.moisture !== undefined && m.moisture !== '') ? `${Number(m.moisture)}%` : '<span style="color:var(--muted);">ไม่ระบุ (-)</span>';
+          const effDens = getMaterialEffectiveDensity(m);
+          const densText = (m.density !== null && m.density !== undefined && m.density !== '')
+            ? `<strong>${effDens.toFixed(2)} kg/L</strong> <span style="font-size:11px; color:var(--muted);">(${Math.round(effDens * 1000)} kg/m³)</span>`
+            : `<span style="color:var(--muted);">~${effDens.toFixed(2)} kg/L</span>`;
           const photoHtml = m.photo
             ? `<img src="${m.photo}" class="photo-thumb-sm" alt="${escapeHtml(m.name)}" data-view-photo="${m.photo}" data-photo-title="${escapeHtml(m.id)} - ${escapeHtml(m.name)}">`
             : '<span style="font-size:11px; color:var(--muted);">ไม่มีรูป</span>';
@@ -1908,6 +2238,7 @@
               <td><span class="badge ${getCategoryBadgeClass(m.category)}">${escapeHtml(m.category)}</span></td>
               <td class="num">${cnText}</td>
               <td class="num">${moistText}</td>
+              <td class="num">${densText}</td>
               <td>${escapeHtml(m.pretreat || '-')}</td>
               <td>
                 <div style="display:flex; gap:4px;">
@@ -1919,14 +2250,18 @@
           `;
         }).join('');
 
-        // Populate ingredient dropdown in Module 2
         const ingSelect = document.getElementById('ingredientSelect');
         if (ingSelect) {
+          const prevVal = ingSelect.value;
           ingSelect.innerHTML = state.materials.map(m => {
-            const cnLabel = (m.cn !== null && m.cn !== undefined && m.cn !== '') ? `C:N ${m.cn}:1` : 'C:N ประมาณตามหมวดหมู่';
-            const moistLabel = (m.moisture !== null && m.moisture !== undefined && m.moisture !== '') ? `ความชื้น ${m.moisture}%` : 'ความชื้นไม่ระบุ';
-            return `<option value="${escapeHtml(m.id)}">[${escapeHtml(m.id)}] ${escapeHtml(m.name)} — ${cnLabel}, ${moistLabel}</option>`;
+            const cnLabel = (m.cn !== null && m.cn !== undefined && m.cn !== '') ? `C:N ${m.cn}:1` : 'C:N ประมาณตามหมวด';
+            const effDens = getMaterialEffectiveDensity(m);
+            return `<option value="${escapeHtml(m.id)}">[${escapeHtml(m.id)}] ${escapeHtml(m.name)} — ${cnLabel} | ความหนาแน่น ${effDens.toFixed(2)} kg/L (${Math.round(effDens * 1000)} kg/m³)</option>`;
           }).join('');
+          if (prevVal && state.materials.some(m => m.id === prevVal)) {
+            ingSelect.value = prevVal;
+          }
+          updateVolumeToWeightCalc();
         }
       }
 
@@ -1944,6 +2279,7 @@
           document.getElementById('matCategory').value = mat.category;
           document.getElementById('matCN').value = (mat.cn !== null && mat.cn !== undefined) ? mat.cn : '';
           document.getElementById('matMoisture').value = (mat.moisture !== null && mat.moisture !== undefined) ? mat.moisture : '';
+          document.getElementById('matDensity').value = (mat.density !== null && mat.density !== undefined) ? mat.density : '';
           document.getElementById('matPretreat').value = mat.pretreat;
           draftMatPhoto = mat.photo || '';
           const prevEl = document.getElementById('matPhotoPreview');
@@ -1987,24 +2323,26 @@
         const category = document.getElementById('matCategory').value;
         const cnRaw = document.getElementById('matCN').value.trim();
         const moistRaw = document.getElementById('matMoisture').value.trim();
+        const densRaw = document.getElementById('matDensity').value.trim();
         const cn = cnRaw !== '' ? parseFloat(cnRaw) : null;
         const moisture = moistRaw !== '' ? parseFloat(moistRaw) : null;
+        const density = densRaw !== '' ? parseFloat(densRaw) : null;
         const pretreat = document.getElementById('matPretreat').value.trim() || '-';
 
         if (!id || !name) return;
 
-        const matObj = { id, name, category, cn, moisture, pretreat, photo: draftMatPhoto || '' };
+        const matObj = { id, name, category, cn, moisture, density, pretreat, photo: draftMatPhoto || '' };
         const existingIdx = state.materials.findIndex(x => x.id === id);
         if (mode === 'edit' && existingIdx > -1) {
           state.materials[existingIdx] = matObj;
-          addAuditLog('แก้ไขวัตถุดิบ (Update Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Moisture ${moisture ?? 'ไม่ระบุ'}%)`);
+          addAuditLog('แก้ไขวัตถุดิบ (Update Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Density ${density ?? 'ตามหมวด'} kg/L)`);
         } else {
           if (existingIdx > -1) {
             state.materials[existingIdx] = matObj;
           } else {
             state.materials.push(matObj);
           }
-          addAuditLog('เพิ่มวัตถุดิบ (Add Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Moisture ${moisture ?? 'ไม่ระบุ'}%)`);
+          addAuditLog('เพิ่มวัตถุดิบ (Add Material)', `${id}: ${name} (C:N ${cn ?? 'ไม่ระบุ'}, Density ${density ?? 'ตามหมวด'} kg/L)`);
         }
         resetMaterialForm();
         renderMaterialsTable();
@@ -2012,13 +2350,87 @@
 
       document.getElementById('btnResetMaterials').addEventListener('click', function () {
         state.materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
-        addAuditLog('รีเซ็ตวัตถุดิบมาตรฐาน', 'คืนค่าเริ่มต้น MAT-001 ถึง MAT-016');
+        addAuditLog('รีเซ็ตวัตถุดิบมาตรฐาน', 'คืนค่าเริ่มต้น MAT-001 ถึง MAT-017 พร้อมค่าความหนาแน่น (Bulk Density)');
         renderMaterialsTable();
       });
 
       // =========================================================================
-      // 5. MODULE 2: FORMULATION & EXPERIMENT SETUP (FR-FORM-01 to FR-FORM-04)
+      // 5. MODULE 2: FORMULATION & VOLUME-TO-WEIGHT CALCULATOR
       // =========================================================================
+      function updateVolumeToWeightCalc() {
+        const matId = document.getElementById('ingredientSelect').value;
+        const mat = state.materials.find(m => m.id === matId) || state.materials[0];
+        if (!mat) return;
+
+        const densityKgPerL = getMaterialEffectiveDensity(mat);
+        const densityKgPerM3 = Math.round(densityKgPerL * 1000);
+
+        document.getElementById('volCalcDensityInfo').innerHTML =
+          `วัสดุที่เลือก: <strong>${escapeHtml(mat.name)}</strong> — ความหนาแน่น <strong>${densityKgPerL.toFixed(2)} kg/L</strong> (${densityKgPerM3} kg/m³ | ถัง 20L ≈ ${(densityKgPerL * 20).toFixed(1)} kg)`;
+
+        let volumeLiters = 0;
+        let compaction = 1.0;
+
+        if (volCalcMode === 'container') {
+          const unitL = parseFloat(document.getElementById('volContainerUnit').value) || 20;
+          const count = parseFloat(document.getElementById('volContainerCount').value) || 0;
+          compaction = parseFloat(document.getElementById('volCompactionFactor').value) || 1.0;
+          volumeLiters = unitL * count;
+        } else {
+          const wCm = parseFloat(document.getElementById('volDimW').value) || 0;
+          const lCm = parseFloat(document.getElementById('volDimL').value) || 0;
+          const hCm = parseFloat(document.getElementById('volDimH').value) || 0;
+          volumeLiters = (wCm * lCm * hCm) / 1000;
+        }
+
+        const estWeightKg = volumeLiters * densityKgPerL * compaction;
+        latestCalculatedVolumeL = Number(volumeLiters.toFixed(1));
+        latestCalculatedWeightKg = Number(estWeightKg.toFixed(2));
+
+        const compactStr = compaction !== 1.0 ? ` × ตัวคูณการอัด ${compaction}` : '';
+        document.getElementById('volFormulaBreakdown').textContent =
+          `ปริมาตรรวม ${latestCalculatedVolumeL.toLocaleString()} ลิตร (${(volumeLiters / 1000).toFixed(3)} m³) × ความหนาแน่น ${densityKgPerL.toFixed(2)} kg/L${compactStr}`;
+        document.getElementById('volCalculatedWeightText').textContent =
+          `น้ำหนักคำนวณได้: ${latestCalculatedWeightKg.toFixed(2)} kg`;
+      }
+
+      document.getElementById('ingredientSelect').addEventListener('change', updateVolumeToWeightCalc);
+      ['volContainerUnit', 'volContainerCount', 'volCompactionFactor', 'volDimW', 'volDimL', 'volDimH'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updateVolumeToWeightCalc);
+          el.addEventListener('change', updateVolumeToWeightCalc);
+        }
+      });
+
+      document.getElementById('btnModeContainer').addEventListener('click', function () {
+        volCalcMode = 'container';
+        document.getElementById('volModeContainerWrap').style.display = 'grid';
+        document.getElementById('volModeBoxWrap').style.display = 'none';
+        updateVolumeToWeightCalc();
+      });
+
+      document.getElementById('btnModeBoxDim').addEventListener('click', function () {
+        volCalcMode = 'box';
+        document.getElementById('volModeContainerWrap').style.display = 'none';
+        document.getElementById('volModeBoxWrap').style.display = 'grid';
+        updateVolumeToWeightCalc();
+      });
+
+      document.getElementById('btnApplyVolWeight').addEventListener('click', function () {
+        updateVolumeToWeightCalc();
+        if (latestCalculatedWeightKg > 0) {
+          document.getElementById('ingredientWeight').value = latestCalculatedWeightKg;
+        }
+      });
+
+      document.getElementById('btnAddVolDirect').addEventListener('click', function () {
+        updateVolumeToWeightCalc();
+        if (latestCalculatedWeightKg <= 0) return;
+        document.getElementById('ingredientWeight').value = latestCalculatedWeightKg;
+        addSelectedIngredientToDraft(latestCalculatedWeightKg, latestCalculatedVolumeL);
+      });
+
       function generateUniqueBatchId() {
         const now = new Date();
         const ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
@@ -2030,6 +2442,7 @@
         document.getElementById('batchIdInput').value = generateUniqueBatchId();
         document.getElementById('batchStartDate').value = new Date().toISOString().slice(0, 10);
         updatePileDimensionsCheck();
+        updateVolumeToWeightCalc();
       }
 
       document.getElementById('btnGenBatchId').addEventListener('click', function () {
@@ -2044,7 +2457,7 @@
         const l = parseFloat(document.getElementById('pileLength').value) || 0;
         const h = parseFloat(document.getElementById('pileHeight').value) || 0;
         const vol = w * l * h;
-        document.getElementById('calcPileVolume').textContent = `ปริมาตรตั้งต้น: ${vol.toFixed(2)} m³`;
+        document.getElementById('calcPileVolume').textContent = `ปริมาตรกองตั้งต้น: ${vol.toFixed(2)} m³`;
 
         const warnEl = document.getElementById('dimensionWarning');
         if (w < 1.0 || vol < 1.0 || h < 1.0) {
@@ -2058,14 +2471,12 @@
         document.getElementById(id).addEventListener('input', updatePileDimensionsCheck);
       });
 
-      // Calculate Blended C:N Ratio (FR-FORM-01)
-      // Formula in SRS: Blended C:N = sum(W_i * %C_i) / sum(W_i * %N_i)
-      // Using dry-matter proportional %C and %N where %C_i / %N_i = CN_i
       function calculateFormulationMetrics(ingredients) {
         if (!ingredients || ingredients.length === 0) {
-          return { blendedCN: 0, blendedMoisture: 0, totalWeight: 0 };
+          return { blendedCN: 0, blendedMoisture: 0, totalWeight: 0, totalVolumeL: 0 };
         }
         let totalWeight = 0;
+        let totalVolumeL = 0;
         let totalWater = 0;
         let sumWeightedC = 0;
         let sumWeightedN = 0;
@@ -2075,12 +2486,15 @@
           const catDef = getCategoryDefaults(item.category);
           const moist = (item.moisture !== null && item.moisture !== undefined && item.moisture !== '') ? Number(item.moisture) : catDef.moisture;
           const cn = (item.cn !== null && item.cn !== undefined && item.cn !== '') ? Number(item.cn) : catDef.cn;
+          const dens = (item.density !== null && item.density !== undefined && item.density !== '') ? Number(item.density) : catDef.density;
+          const volL = item.volumeL ? Number(item.volumeL) : (w / Math.max(0.02, dens));
+
           const dryFraction = Math.max(0.05, (100 - moist) / 100);
-          // Organic carbon in dry matter (~50% C of dry weight), Nitrogen = %C / CN_i
           const pctC = 50 * dryFraction;
           const pctN = pctC / Math.max(1, cn);
 
           totalWeight += w;
+          totalVolumeL += volL;
           totalWater += w * (moist / 100);
           sumWeightedC += w * pctC;
           sumWeightedN += w * pctN;
@@ -2088,31 +2502,36 @@
 
         const blendedCN = sumWeightedN > 0 ? (sumWeightedC / sumWeightedN) : 0;
         const blendedMoisture = totalWeight > 0 ? ((totalWater / totalWeight) * 100) : 0;
-        return { blendedCN, blendedMoisture, totalWeight };
+        return { blendedCN, blendedMoisture, totalWeight, totalVolumeL };
       }
 
       function renderDraftRecipe() {
         const tbody = document.getElementById('recipeIngredientsBody');
         if (draftIngredients.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state" style="padding:16px;">ยังไม่มีวัตถุดิบในสูตร กรุณาเลือกวัตถุดิบแล้วกด "+ เพิ่มวัตถุดิบในสูตร"</div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state" style="padding:16px;">ยังไม่มีวัตถุดิบในสูตร กรุณาเลือกวัตถุดิบ คำนวณจากปริมาตรหรือระบุน้ำหนัก แล้วกดเพิ่มเข้าสูตร</div></td></tr>';
         } else {
-          tbody.innerHTML = draftIngredients.map((ing, idx) => `
-            <tr>
-              <td><strong>${escapeHtml(ing.id)}</strong></td>
-              <td>${escapeHtml(ing.name)}</td>
-              <td><span class="badge ${getCategoryBadgeClass(ing.category)}">${escapeHtml(ing.category)}</span></td>
-              <td class="num">${ing.cn !== null && ing.cn !== undefined ? ing.cn + ':1' : 'ประมาณการ'}</td>
-              <td class="num">${ing.moisture !== null && ing.moisture !== undefined ? ing.moisture + '%' : 'ประมาณการ'}</td>
-              <td class="num"><strong>${ing.weight.toFixed(1)} kg</strong></td>
-              <td><button type="button" class="btn btn-danger btn-sm" data-remove-ing="${idx}">ลบ</button></td>
-            </tr>
-          `).join('');
+          tbody.innerHTML = draftIngredients.map((ing, idx) => {
+            const dens = ing.density || getCategoryDefaults(ing.category).density;
+            const estVolL = ing.volumeL ? ing.volumeL : (ing.weight / Math.max(0.02, dens));
+            return `
+              <tr>
+                <td><strong>${escapeHtml(ing.id)}</strong></td>
+                <td>${escapeHtml(ing.name)}</td>
+                <td><span class="badge ${getCategoryBadgeClass(ing.category)}">${escapeHtml(ing.category)}</span></td>
+                <td class="num">${ing.cn !== null && ing.cn !== undefined ? ing.cn + ':1' : 'ประมาณการ'}</td>
+                <td class="num">${ing.moisture !== null && ing.moisture !== undefined ? ing.moisture + '%' : 'ประมาณการ'}</td>
+                <td class="num">~${estVolL.toFixed(1)} L <span style="font-size:11px; color:var(--muted);">(${(estVolL / 20).toFixed(1)} ถัง 20L)</span></td>
+                <td class="num"><strong>${ing.weight.toFixed(2)} kg</strong></td>
+                <td><button type="button" class="btn btn-danger btn-sm" data-remove-ing="${idx}">ลบ</button></td>
+              </tr>
+            `;
+          }).join('');
         }
 
         const metrics = calculateFormulationMetrics(draftIngredients);
         document.getElementById('calcBlendedCN').textContent = `${metrics.blendedCN.toFixed(1)} : 1`;
         document.getElementById('calcBlendedMoisture').textContent = `${metrics.blendedMoisture.toFixed(1)}%`;
-        document.getElementById('calcTotalWeight').textContent = `${metrics.totalWeight.toFixed(1)} kg`;
+        document.getElementById('calcTotalWeight').textContent = `${metrics.totalWeight.toFixed(1)} kg (~${metrics.totalVolumeL.toFixed(0)} L)`;
 
         const badge = document.getElementById('cnStatusBadge');
         const recBox = document.getElementById('formulationRecommendationBox');
@@ -2131,7 +2550,7 @@
           badge.className = 'badge badge-danger';
           badge.textContent = 'C:N ต่ำเกินไป (< 25:1 ไนโตรเจนสูง)';
           recBox.className = 'alert-box alert-danger';
-          recBox.innerHTML = `<strong>แจ้งเตือน FR-FORM-02 (C:N = ${metrics.blendedCN.toFixed(1)}:1 ต่ำกว่า 25:1):</strong> มีสัดส่วนไนโตรเจนมากเกินไป อาจเกิดกลิ่นแอมโมเนียฉุน แนะนำให้เพิ่มวัสดุสีน้ำตาล (Brown Carbon เช่น ใบกล้วยแห้ง หญ้าแห้ง หรือกิ่งไม้สับ)`;
+          recBox.innerHTML = `<strong>แจ้งเตือน FR-FORM-02 (C:N = ${metrics.blendedCN.toFixed(1)}:1 ต่ำกว่า 25:1):</strong> มีสัดส่วนไนโตรเจนมากเกินไป อาจเกิดกลิ่นแอมโมเนียฉุน แนะนำให้เพิ่มวัสดุสีน้ำตาล (Brown Carbon เช่น ใบกล้วยแห้ง หญ้าแห้ง กระดาษลัง หรือกิ่งไม้สับ)`;
         } else {
           badge.className = 'badge badge-warn';
           badge.textContent = 'C:N สูงเกินไป (> 30:1 คาร์บอนสูง)';
@@ -2140,16 +2559,19 @@
         }
       }
 
-      document.getElementById('btnAddIngredient').addEventListener('click', function () {
+      function addSelectedIngredientToDraft(weightKg, explicitVolumeL) {
         const matId = document.getElementById('ingredientSelect').value;
-        const weight = parseFloat(document.getElementById('ingredientWeight').value);
-        if (!matId || isNaN(weight) || weight <= 0) return;
+        if (!matId || isNaN(weightKg) || weightKg <= 0) return;
         const mat = state.materials.find(m => m.id === matId);
         if (!mat) return;
 
+        const effDens = getMaterialEffectiveDensity(mat);
+        const volL = explicitVolumeL !== undefined ? explicitVolumeL : Number((weightKg / Math.max(0.02, effDens)).toFixed(1));
+
         const existing = draftIngredients.find(i => i.id === matId);
         if (existing) {
-          existing.weight += weight;
+          existing.weight = Number((existing.weight + weightKg).toFixed(2));
+          existing.volumeL = Number(((existing.volumeL || 0) + volL).toFixed(1));
         } else {
           draftIngredients.push({
             id: mat.id,
@@ -2157,10 +2579,17 @@
             category: mat.category,
             cn: mat.cn,
             moisture: mat.moisture,
-            weight: weight
+            density: effDens,
+            volumeL: volL,
+            weight: Number(weightKg.toFixed(2))
           });
         }
         renderDraftRecipe();
+      }
+
+      document.getElementById('btnAddIngredient').addEventListener('click', function () {
+        const weight = parseFloat(document.getElementById('ingredientWeight').value);
+        addSelectedIngredientToDraft(weight);
       });
 
       document.getElementById('recipeIngredientsBody').addEventListener('click', function (e) {
@@ -2171,7 +2600,6 @@
         renderDraftRecipe();
       });
 
-      // Deterministic SVG QR-like Matrix Generator for Batch ID (FR-FORM-04)
       function generateQrSvg(text, size = 108) {
         const grid = 21;
         let hash = 2166136261;
@@ -2243,6 +2671,7 @@
           blendedCN: Number(metrics.blendedCN.toFixed(2)),
           blendedMoisture: Number(metrics.blendedMoisture.toFixed(1)),
           totalWeight: Number(metrics.totalWeight.toFixed(1)),
+          totalVolumeL: Number(metrics.totalVolumeL.toFixed(1)),
           photo: draftBatchPhoto || '',
           logs: {}
         };
@@ -2374,12 +2803,10 @@
         }
       });
 
-      // Troubleshooting Engine (FR-PROC-03)
       function evaluateTroubleshooting(batch, dayNum, coreTemp, moisture, odor) {
         const alerts = [];
         const prevDayLog = batch.logs ? batch.logs[dayNum - 1] : null;
 
-        // Condition 1: Temp > 65°C for 2 consecutive days (or current day > 65°C warning)
         if (coreTemp > 65) {
           if (prevDayLog && Number(prevDayLog.coreTemp) > 65) {
             alerts.push({
@@ -2396,7 +2823,6 @@
           }
         }
 
-        // Condition 2: Temp not rising / not hot (e.g., Day >= 4 and coreTemp < 45°C)
         if (dayNum >= 4 && dayNum <= 14 && coreTemp < 45) {
           alerts.push({
             level: 'warn',
@@ -2405,7 +2831,6 @@
           });
         }
 
-        // Condition 3: Anaerobic foul odor
         if (odor === 'Anaerobic') {
           alerts.push({
             level: 'danger',
@@ -2414,7 +2839,6 @@
           });
         }
 
-        // Condition 4: Squeeze Test Result
         if (moisture === 'Too Dry') {
           alerts.push({
             level: 'warn',
@@ -2425,7 +2849,7 @@
           alerts.push({
             level: 'warn',
             title: 'ความชื้นสูงเกินไป (Squeeze Test: Water Streaming Too Wet)',
-            advice: 'แนะนำ: เติมวัสดุแห้งดูดซับความชื้น (Brown Carbon เช่น ใบไม้แห้ง/หญ้าแห้ง) และกลับกองผึ่งลม'
+            advice: 'แนะนำ: เติมวัสดุแห้งดูดซับความชื้น (Brown Carbon เช่น ใบไม้แห้ง/หญ้าแห้ง/กระดาษลัง) และกลับกองผึ่งลม'
           });
         }
 
@@ -2448,7 +2872,7 @@
             <div class="card">
               <div class="empty-state">
                 <strong>ยังไม่มีกองปุ๋ยสำหรับบันทึกผลหน้างาน</strong>
-                <p>กรุณาไปที่แท็บ "2. คำนวณสูตร &amp; สร้างกองปุ๋ย" เพื่อเปิด Batch การทดลองก่อน</p>
+                <p>กรุณาไปที่แท็บ "2. คำนวณสูตร &amp; ตวงปริมาตร" เพื่อเปิด Batch การทดลองก่อน</p>
               </div>
             </div>
           `;
@@ -2467,7 +2891,6 @@
           draftLogPhoto = '';
         }
 
-        // Build 18-day automated task calendar (FR-PROC-01)
         let calendarHtml = '';
         for (let d = 1; d <= 18; d++) {
           const sched = DAY_SCHEDULE[d];
@@ -2669,10 +3092,8 @@
           </div>
         `;
 
-        // Bind photo uploader inside dynamic monitoringWorkspace
         bindPhotoUploader('logPhotoInput', 'logPhotoPreview', 'btnClearLogPhoto', val => { draftLogPhoto = val; });
 
-        // Bind IoT MQTT buttons inside dynamic monitoringWorkspace
         function syncSqueezeFromSensorMoisture(moistVal) {
           if (moistVal < 45) selectedMoistureChoice = 'Too Dry';
           else if (moistVal > 68) selectedMoistureChoice = 'Water Streaming Too Wet';
@@ -2706,7 +3127,6 @@
         const btnPh = document.getElementById('btnIotPh');
         if (btnPh) btnPh.addEventListener('click', () => { document.getElementById('logPh').value = mqttTelemetry.ph; });
 
-        // Bind events inside monitoringWorkspace
         workspace.querySelectorAll('[data-select-day]').forEach(cell => {
           cell.addEventListener('click', () => {
             selectedMonitorDay = parseInt(cell.getAttribute('data-select-day'), 10);
@@ -2787,7 +3207,6 @@
           bioIdInput.value = `BIO-${new Date().getFullYear()}-${String(state.bioassays.length + 1).padStart(3, '0')}`;
         }
 
-        // Render Lab Results Table
         const labWrap = document.getElementById('labResultsTableWrap');
         if (state.labResults.length === 0) {
           labWrap.innerHTML = '<div class="empty-state" style="padding:18px;">ยังไม่มีผลวิเคราะห์คุณภาพปุ๋ยหลัง Day 18</div>';
@@ -2833,7 +3252,6 @@
           `;
         }
 
-        // Render Bioassay Table
         const bioWrap = document.getElementById('bioassayTableWrap');
         if (state.bioassays.length === 0) {
           bioWrap.innerHTML = '<div class="empty-state" style="padding:18px;">ยังไม่มีผลการทดลองปลูกพืช (Crop Bioassay)</div>';
@@ -2868,7 +3286,7 @@
                         <td class="num">${b.periodDays} วัน</td>
                         <td class="num"><strong>${b.height} cm</strong></td>
                         <td class="num">${b.leaves}</td>
-                        <td class="num">${b.freshWeight} / ${fmtOptVal(b.dryWeight)} g</td>
+                        <td class="num">${fmtOptVal(b.freshWeight)} / ${fmtOptVal(b.dryWeight)} g</td>
                         <td class="num">${b.survival}%</td>
                       </tr>
                     `;
@@ -2922,6 +3340,7 @@
         e.preventDefault();
         const batchId = document.getElementById('bioBatchSelect').value;
         if (!batchId) return;
+        const freshRaw = document.getElementById('bioFreshWeight').value.trim();
         const dryRaw = document.getElementById('bioDryWeight').value.trim();
         const entry = {
           testId: document.getElementById('bioTestId').value.trim().toUpperCase(),
@@ -2930,7 +3349,7 @@
           periodDays: parseInt(document.getElementById('bioPeriodDays').value, 10),
           height: parseFloat(document.getElementById('bioHeight').value),
           leaves: parseInt(document.getElementById('bioLeaves').value, 10),
-          freshWeight: parseFloat(document.getElementById('bioFreshWeight').value),
+          freshWeight: freshRaw !== '' ? parseFloat(freshRaw) : null,
           dryWeight: dryRaw !== '' ? parseFloat(dryRaw) : null,
           survival: parseFloat(document.getElementById('bioSurvival').value),
           photo: draftBioPhoto || ''
@@ -2992,7 +3411,6 @@
           return padT + plotH - ((clamped - minTemp) / (maxTemp - minTemp)) * plotH;
         }
 
-        // Target zone 55-65°C band
         const y65 = yPos(65);
         const y55 = yPos(55);
 
@@ -3055,8 +3473,9 @@
           const avgGrowthRate = bios.length > 0
             ? (bios.reduce((acc, cur) => acc + (cur.height / Math.max(1, cur.periodDays)), 0) / bios.length)
             : null;
-          const avgFreshWeight = bios.length > 0
-            ? (bios.reduce((acc, cur) => acc + cur.freshWeight, 0) / bios.length)
+          const biosWithWeight = bios.filter(x => x.freshWeight !== null && x.freshWeight !== undefined);
+          const avgFreshWeight = biosWithWeight.length > 0
+            ? (biosWithWeight.reduce((acc, cur) => acc + cur.freshWeight, 0) / biosWithWeight.length)
             : null;
 
           return {
@@ -3103,7 +3522,6 @@
         `;
       }
 
-      // Export CSV / PDF (FR-ANA-03)
       function buildExperimentCsv() {
         const lines = [];
         lines.push('=== COMPOST LIMS EXPERIMENT REPORT (CSV EXPORT) ===');
@@ -3121,10 +3539,10 @@
             b.blendedCN,
             b.blendedMoisture,
             b.volume,
-            lab ? lab.n : '',
-            lab ? lab.p : '',
-            lab ? lab.k : '',
-            lab ? lab.finalCN : '',
+            lab && lab.n !== null ? lab.n : '',
+            lab && lab.p !== null ? lab.p : '',
+            lab && lab.k !== null ? lab.k : '',
+            lab && lab.finalCN !== null ? lab.finalCN : '',
             bios.length,
             avgRate
           ].join(','));
@@ -3137,7 +3555,6 @@
         document.getElementById('exportModalTextarea').value = csvContent;
         document.getElementById('exportModal').classList.add('open');
 
-        // Also trigger standard Blob download for standalone browser use
         try {
           const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
           const url = URL.createObjectURL(blob);
@@ -3148,17 +3565,13 @@
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-        } catch (err) {
-          // Modal fallback is already open
-        }
+        } catch (err) {}
       });
 
       document.getElementById('btnExportPdf').addEventListener('click', function () {
         try {
           window.print();
-        } catch (err) {
-          // Ignore if blocked in sandbox
-        }
+        } catch (err) {}
         const csvContent = buildExperimentCsv();
         document.getElementById('exportModalTextarea').value = csvContent;
         document.getElementById('exportModal').classList.add('open');
@@ -3181,8 +3594,53 @@
       });
 
       // =========================================================================
-      // 9. MODULE 6: BACKUP / RESTORE & AUDIT LOG (NFR 4.3)
+      // 9. MODULE 6: GITHUB PAGES KIT, BACKUP / RESTORE & AUDIT LOG (NFR 4.3)
       // =========================================================================
+      function showGhFileInEditor(fileName, content) {
+        currentGhFileName = fileName;
+        document.getElementById('ghFileLabel').innerHTML = `โค้ดของไฟล์ <code>${escapeHtml(fileName)}</code> สำหรับวางใน GitHub Repository:`;
+        document.getElementById('ghFileContentArea').value = content;
+      }
+
+      document.getElementById('btnGenSwJs').addEventListener('click', function () {
+        showGhFileInEditor('sw.js', GITHUB_PAGES_SW_CODE);
+      });
+
+      document.getElementById('btnGenManifestJson').addEventListener('click', function () {
+        showGhFileInEditor('manifest.json', JSON.stringify(GITHUB_PAGES_MANIFEST_OBJ, null, 2));
+      });
+
+      document.getElementById('btnGenGhWorkflow').addEventListener('click', function () {
+        showGhFileInEditor('deploy.yml', GITHUB_ACTIONS_WORKFLOW_YAML);
+      });
+
+      document.getElementById('btnCopyGhFile').addEventListener('click', function () {
+        const ta = document.getElementById('ghFileContentArea');
+        ta.select();
+        try {
+          navigator.clipboard.writeText(ta.value);
+          this.textContent = 'คัดลอกโค้ดแล้ว!';
+          setTimeout(() => { this.textContent = 'คัดลอกโค้ดไฟล์นี้ (Copy)'; }, 1600);
+        } catch (err) {
+          document.execCommand('copy');
+        }
+      });
+
+      document.getElementById('btnDownloadGhFile').addEventListener('click', function () {
+        const content = document.getElementById('ghFileContentArea').value;
+        try {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = currentGhFileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {}
+      });
+
       function renderAuditLogs() {
         const wrap = document.getElementById('auditLogTableWrap');
         const badge = document.getElementById('auditCountBadge');
@@ -3236,9 +3694,7 @@
             syncBatchDropdowns();
             renderAuditLogs();
           }
-        } catch (err) {
-          // Invalid JSON
-        }
+        } catch (err) {}
       });
 
       function escapeHtml(str) {
@@ -3253,8 +3709,11 @@
       // =========================================================================
       // INITIALIZE APP
       // =========================================================================
+      initGitHubPagesPwaSupport();
+      showGhFileInEditor('sw.js', GITHUB_PAGES_SW_CODE);
       loadState();
       updateNetworkStatus();
+      updateMqttDisplay();
       renderMaterialsTable();
       initFormulationDefaults();
       renderDraftRecipe();
@@ -3262,13 +3721,6 @@
       syncBatchDropdowns();
       renderAuditLogs();
     })();
-  </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
   </script>
 </body>
 </html>
