@@ -1,21 +1,18 @@
 {
-  "name": "Compost LIMS - ระบบทดลองปุ๋ยหมัก 18 วัน",
+  "name": "Compost LIMS — ระบบจัดการการทดลองปุ๋ยหมักอินทรีย์ 18 วัน",
   "short_name": "Compost LIMS",
+  "description": "ระบบจัดการข้อมูลห้องปฏิบัติการและการทดลองปุ๋ยหมักอินทรีย์ 18 วัน (Online/Offline PWA)",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4f6f4",
   "theme_color": "#166534",
-  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192.png?text=C:N",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://via.placeholder.com/512x512.png?text=Compost+LIMS",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23166534'/%3E%3Ctext x='96' y='118' font-family='sans-serif' font-size='72' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EC:N%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
